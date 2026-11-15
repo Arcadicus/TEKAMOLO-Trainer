@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEKAMOLO Trainer</title>
+    <style>
+        :root { 
+            --bg: #f4f6f9;
+            --card: #ffffff;
+            --text: #2d3748;
+            --muted: #718096;
+            --c-subj: #64748b;   /* Slate */
+            --c-verb: #3498db;   /* Blue */
+            --c-modal: #9b59b6;  /* Purple */
+            --c-time: #e67e22;   /* Orange */
+            --c-cause: #e74c3c;  /* Red */
+            --c-mode: #d4ac0d;   /* Warm Gold */
+            --c-loc: #27ae60;    /* Green */
+            --c-conn: #00acc1;   /* Cyan */
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background: var(--bg); 
+            color: var(--text);
+            margin: 0; 
+            padding: 16px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        
+        .app-container { 
+            width: 100%; 
+            max-width: 680px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 14px; 
+        }
+        
+        .card { 
+            background: var(--card); 
+            padding: 20px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
+            border: 1px solid #edf2f7;
+        }
+
+        /* Header & Streak */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .header-row h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stats-pill {
+            background: #f1f5f9;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Mode Switcher */
+        .mode-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            gap: 4px;
+        }
+
+        .mode-btn {
+            background: transparent;
+            color: var(--muted);
+            border: none;
+            padding: 8px 6px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: none;
+            transition: 0.2s;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: var(--c-verb);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+
+        /* Controls */
+        .controls { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 8px; 
+            margin-bottom: 10px; 
+        }
+
+        @media (max-width: 480px) {
+            .controls { grid-template-columns: 1fr; }
+        }
+        
+        select { 
+            padding: 10px 12px; 
+            border-radius: 10px; 
+            border: 1px solid #cbd5e0; 
+            font-size: 0.92rem; 
+            background: #fff; 
+            color: var(--text);
+            width: 100%;
+        }
+
+        .toggles-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 8px 4px;
+            font-size: 0.88rem;
+            color: var(--muted);
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        input[type="checkbox"] {
+            accent-color: var(--c-verb);
+            transform: scale(1.15);
+        }
+
+        /* English Prompt Box */
+        .prompt-box { 
+            font-size: 1.05rem; 
+            color: #334155; 
+            background: #f8fafc; 
+            padding: 14px 16px; 
+            border-radius: 10px; 
+            border-left: 4px solid var(--c-verb);
+            margin: 12px 0;
+            text-align: left;
+            line-height: 1.45;
+        }
+
+        .prompt-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Sentence & Puzzle Areas */
+        .zone-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            font-weight: 700;
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .sentence-box { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 8px; 
+            margin: 12px 0; 
+            min-height: 74px; 
+            align-items: center;
+            padding: 12px;
+            border-radius: 12px;
+            background: #fcfdfe;
+            border: 1px dashed #cbd5e0;
+        }
+
+        .bank-box {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 12px;
+            background: #f1f5f9;
+            min-height: 58px;
+        }
+
+        /* Word Tiles (Clean Outline Style) */
+        .word { 
+            cursor: pointer; 
+            padding: 7px 12px; 
+            background: white; 
+            border: 2px solid #cbd5e0; 
+            border-radius: 9px; 
+            font-weight: 600; 
+            font-size: 1rem; 
+            color: var(--text);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.2;
+            user-select: none;
+        }
+
+        .word:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+        }
+
+        .word .role-tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 3px;
+            opacity: 0.85;
+        }
+
+        .hide-tags .role-tag { display: none; }
+
+        /* Outline Role Colors */
+        .word[data-role="Subj"]    { border-color: var(--c-subj); color: var(--c-subj); }
+        .word[data-role="Verb"]    { border-color: var(--c-verb); color: var(--c-verb); }
+        .word[data-role="Modal"]   { border-color: var(--c-modal); color: var(--c-modal); }
+        .word[data-role="End"]     { border-color: var(--c-verb); color: var(--c-verb); border-style: dashed; }
+        .word[data-role="SubVerb"] { border-color: var(--c-verb); color: var(--c-verb); border-style: dotted; }
+        .word[data-role="TE"]      { border-color: var(--c-time); color: var(--c-time); }
+        .word[data-role="KA"]      { border-color: var(--c-cause); color: var(--c-cause); }
+        .word[data-role="MO"]      { border-color: var(--c-mode); color: var(--c-mode); }
+        .word[data-role="LO"]      { border-color: var(--c-loc); color: var(--c-loc); }
+        .word[data-role="Conn"]    { border-color: var(--c-conn); color: var(--c-conn); }
+        
+        /* Neutral tiles for Puzzle Mode before solving */
+        .word.neutral {
+            border-color: #94a3b8;
+            color: #334155;
+        }
+
+        .word[data-role="Comma"] { 
+            border: 2px solid #cbd5e0;
+            color: var(--text);
+            padding: 7px 10px;
+        }
+
+        .period-mark {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--muted);
+            align-self: flex-end;
+            padding-bottom: 4px;
+        }
+
+        /* Action Buttons */
+        .primary-btn { 
+            background: var(--c-verb); 
+            color: white; 
+            border: none; 
+            padding: 13px 18px; 
+            border-radius: 10px; 
+            font-size: 1rem; 
+            font-weight: 700; 
+            cursor: pointer; 
+            width: 100%; 
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.22);
+            transition: 0.15s;
+        }
+        .primary-btn:active { transform: scale(0.98); }
+
+        .action-bar {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            flex: 1;
+            min-width: 80px;
+            background: #f8fafc;
+            color: var(--text);
+            border: 1px solid #cbd5e0;
+            padding: 9px 10px;
+            border-radius: 9px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .tool-btn:hover { background: #edf2f7; }
+        .tool-btn.success { background: #27ae60; color: white; border-color: #27ae60; }
+        .tool-btn.reveal { background: #475569; color: white; border-color: #475569; }
+
+        .feedback-banner {
+            margin-top: 10px;
+            padding: 10px 14px;
+            border-radius: 9px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+        .feedback-banner.ok { display: block; background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .feedback-banner.err { display: block; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+        /* Grammar DNA Sidebar */
+        .dna-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #edf2f7;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+        .dna-header h3 { margin: 0; font-size: 1.05rem; color: var(--c-verb); }
+
+        .dna-chip {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            background: #f1f5f9;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        /* Saved List */
+        .saved-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+        }
+        .saved-item:last-child { border-bottom: none; }
+        .mini-icon-btn {
+            background: #f1f5f9;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        /* About & Attribution Footer */
+        .about-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 18px 20px;
+            text-align: center;
+            font-size: 0.88rem;
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        .about-title {
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .support-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+            padding: 8px 16px;
+            background: white;
+            color: var(--text);
+            border: 1.5px solid #cbd5e0;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .support-btn:hover {
+            border-color: var(--c-time);
+            color: var(--c-time);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+        }
+
+        .attribution-line {
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            background: #1e293b;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 0.88rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+            z-index: 99;
+        }
+        #toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- MAIN PRACTICE CARD -->
+    <div class="card">
+        <div class="header-row">
+            <h2>🇩🇪 TEKAMOLO Trainer</h2>
+            <div class="stats-pill">
+                <span id="streakDisplay">🔥 Streak: 0</span>
+                <span>|</span>
+                <span id="savedCount">⭐ 0</span>
+            </div>
+        </div>
+
+        <!-- Mode Selector -->
+        <div class="mode-tabs">
+            <button class="mode-btn active" data-mode="instant" onclick="setMode('instant')">⚡ Instant</button>
+            <button class="mode-btn" data-mode="flashcard" onclick="setMode('flashcard')">🧠 Flashcard</button>
+            <button class="mode-btn" data-mode="puzzle" onclick="setMode('puzzle')">🧩 Tile Puzzle</button>
+        </div>
+        
+        <div class="controls">
+            <select id="contextSelect" onchange="runGenerator()">
+                <option value="all">🌐 Mix All Contexts</option>
+                <option value="work">🏢 Work & Office</option>
+                <option value="travel">✈️ Travel & Commute</option>
+                <option value="social">☕ Social & Leisure</option>
+                <option value="home">🏠 Home & Daily Life</option>
+            </select>
+            <select id="structureSelect" onchange="runGenerator()">
+                <option value="mixed">🎲 Mixed Structures</option>
+                <option value="standard">📐 Standard (V2 / Modal)</option>
+                <option value="inverted">🔄 Inverted (Time First)</option>
+                <option value="compound">🔗 Compound (Nebensatz)</option>
+            </select>
+        </div>
+
+        <div class="toggles-row">
+            <label class="toggle-label">
+                <input type="checkbox" id="showTagsToggle" checked onchange="toggleTags()">
+                Show Role Badges
+            </label>
+            <span id="structureBadge" style="font-weight:600; color:var(--c-verb);"></span>
+        </div>
+        
+        <!-- English Reference / Goal -->
+        <div id="promptBox" class="prompt-box">
+            <span class="prompt-label">English Meaning</span>
+            <span id="englishText">Generating...</span>
+        </div>
+
+        <!-- Sentence Display / Puzzle Construction Zone -->
+        <div id="zoneLabel" class="zone-label" style="display:none;">Your Sentence (tap tile to remove):</div>
+        <div id="output" class="sentence-box"></div>
+
+        <!-- Puzzle Word Bank -->
+        <div id="bankLabel" class="zone-label" style="display:none;">Word Bank (tap in correct German order):</div>
+        <div id="wordBank" class="bank-box" style="display:none;"></div>
+
+        <!-- Puzzle Feedback -->
+        <div id="feedback" class="feedback-banner"></div>
+
+        <!-- Mode-specific Action Buttons -->
+        <div id="flashcardActions" class="action-bar" style="display:none;">
+            <button class="tool-btn reveal" onclick="revealFlashcard()">👁️ Reveal German Solution</button>
+        </div>
+
+        <div id="puzzleActions" class="action-bar" style="display:none;">
+            <button class="tool-btn success" onclick="checkPuzzle()">✅ Check Order</button>
+            <button class="tool-btn" onclick="giveHint()">💡 Hint</button>
+            <button class="tool-btn" onclick="resetPuzzle()">↩️ Reset</button>
+        </div>
+
+        <!-- Audio & Utility Bar -->
+        <div class="action-bar" id="utilityBar">
+            <button class="tool-btn" onclick="speakFullSentence(0.95)">🔊 Listen</button>
+            <button class="tool-btn" onclick="speakFullSentence(0.65)">🐢 Slow</button>
+            <button class="tool-btn" onclick="copySentence()">📋 Copy</button>
+            <button class="tool-btn" onclick="saveCurrentSentence()">⭐ Save</button>
+        </div>
+
+        <div style="margin-top: 12px;">
+            <button class="primary-btn" onclick="runGenerator()">✨ Next Sentence</button>
+        </div>
+    </div>
+
+    <!-- GRAMMAR DNA CARD -->
+    <div class="card">
+        <div class="dna-header">
+            <h3>🧬 Grammar DNA</h3>
+            <button id="speakTileBtn" class="mini-icon-btn" style="display:none;" onclick="speakSelectedTile()">🔊 Hear Phrase</button>
+        </div>
+        <div id="details" style="color: #4a5568; line-height: 1.55; font-size: 0.95rem;">
+            Tap any revealed German block above to inspect its role, case, and word-order rule.
+        </div>
+    </div>
+
+    <!-- SAVED SENTENCES CARD -->
+    <div class="card">
+        <div class="dna-header" style="margin-bottom: 6px;">
+            <h3>⭐ Saved Sentences</h3>
+            <button class="mini-icon-btn" onclick="clearSaved()">Clear All</button>
+        </div>
+        <div id="savedList" style="color: var(--muted); font-size: 0.9rem;">
+            No saved sentences yet. Tap "⭐ Save" on any sentence you want to keep.
+        </div>
+    </div>
+
+    <!-- ABOUT & ATTRIBUTION FOOTER -->
+    <footer class="about-card">
+        <div class="about-title">About TEKAMOLO Trainer</div>
+        <div>
+            An interactive German syntax trainer built to help learners master <strong>TE-KA-MO-LO</strong> word order, V2 inversion, modal brackets, and subordinate clauses through hands-on pattern recognition.
+        </div>
+        <a href="https://ko-fi.com/arcadicus" target="_blank" rel="noopener noreferrer" class="support-btn">
+            ☕ Support this free tool
+        </a>
+        <div class="attribution-line">
+            Designed &amp; built with AI by <strong>Gethro</strong>
+        </div>
+    </footer>
+</div>
+
+<div id="toast">Copied!</div>
+
+<script>
+// --- RICH GRAMMATICALLY VERIFIED DATABASE ---
+const db = {
+    subjects: [
+        { id: "ich", de: "Ich", en: "I", pron: "I", isPronoun: true, note: "1st person singular pronoun." },
+        { id: "du",  de: "Du",  en: "You", pron: "you", isPronoun: true, note: "2nd person singular informal pronoun." },
+        { id: "er",  de: "Er",  en: "He", pron: "he", isPronoun: true, note: "3rd person singular masculine pronoun." },
+        { id: "sie", de: "Sie", en: "She", pron: "she", isPronoun: true, note: "3rd person singular feminine pronoun." },
+        { id: "wir", de: "Wir", en: "We", pron: "we", isPronoun: true, note: "1st person plural pronoun." }
+    ],
+    connectors: [
+        { de: "weil", en: "because", note: "Subordinating conjunction: kicks the conjugated verb to the very end of the clause." },
+        { de: "obwohl", en: "although", note: "Concessive conjunction: introduces a contrast and sends the conjugated verb to the end." },
+        { de: "da", en: "since / as", note: "Causal conjunction (often slightly more formal than 'weil'): sends the conjugated verb to the end." },
+        { de: "während", en: "whereas / while", note: "Contrastive conjunction: requires a comma and pushes the conjugated verb to the end." }
+    ],
+    modals: [
+        { 
+            inf: "müssen", 
+            conj: { ich: "muss", du: "musst", er: "muss", sie: "muss", wir: "müssen" },
+            en:   { ich: "have to", du: "have to", er: "has to", sie: "has to", wir: "have to" },
+            tags: ["work", "home", "travel"],
+            note: "Modal verb (necessity): sits in Position 2 and pushes the main action verb to the end as an infinitive."
+        },
+        { 
+            inf: "können", 
+            conj: { ich: "kann", du: "kannst", er: "kann", sie: "kann", wir: "können" },
+            en:   { ich: "can", du: "can", er: "can", sie: "can", wir: "can" },
+            tags: ["work", "social", "home"],
+            note: "Modal verb (ability/possibility): sits in Position 2 and forms a verb bracket (Satzklammer) with the infinitive at the end."
+        },
+        { 
+            inf: "wollen", 
+            conj: { ich: "will", du: "willst", er: "will", sie: "will", wir: "wollen" },
+            en:   { ich: "want to", du: "want to", er: "wants to", sie: "wants to", wir: "want to" },
+            tags: ["social", "travel", "home"],
+            note: "Modal verb (intention): notice the stem vowel change (o → i) in singular forms."
+        },
+        { 
+            inf: "sollen", 
+            conj: { ich: "soll", du: "sollst", er: "soll", sie: "soll", wir: "sollen" },
+            en:   { ich: "should", du: "should", er: "should", sie: "should", wir: "should" },
+            tags: ["work", "home"],
+            note: "Modal verb (obligation/expectation): conjugated in Position 2; infinitive goes to the end."
+        },
+        { 
+            inf: "möchten", 
+            conj: { ich: "möchte", du: "möchtest", er: "möchte", sie: "möchte", wir: "möchten" },
+            en:   { ich: "would like to", du: "would like to", er: "would like to", sie: "would like to", wir: "would like to" },
+            tags: ["social", "travel", "home"],
+            note: "Polite wish form (Subjunctive II of 'mögen'): pairs with an infinitive at the end."
+        }
+    ],
+    verbs: [
+        { inf: "arbeiten", conj: { ich: "arbeite", du: "arbeitest", er: "arbeitet", sie: "arbeitet", wir: "arbeiten" }, en: "work", en3: "works", tags: ["work"], note: "Stem ends in -t, so du/er/sie add an extra -e- before the ending." },
+        { inf: "schreiben", conj: { ich: "schreibe", du: "schreibst", er: "schreibt", sie: "schreibt", wir: "schreiben" }, en: "write", en3: "writes", tags: ["work", "home"], note: "Regular present tense conjugation." },
+        { inf: "telefonieren", conj: { ich: "telefoniere", du: "telefonierst", er: "telefoniert", sie: "telefoniert", wir: "telefonieren" }, en: "make calls", en3: "makes calls", tags: ["work", "social"], note: "Verbs ending in -ieren are always regular." },
+        { inf: "reisen", conj: { ich: "reise", du: "reist", er: "reist", sie: "reist", wir: "reisen" }, en: "travel", en3: "travels", tags: ["travel"], note: "Stem ends in -s, so 'du' takes -t instead of -st." },
+        { inf: "fahren", conj: { ich: "fahre", du: "fährst", er: "fährt", sie: "fährt", wir: "fahren" }, en: "go / drive", en3: "goes / drives", tags: ["travel", "work", "social"], note: "Strong verb: vowel shifts (a → ä) in 2nd & 3rd person singular." },
+        { inf: "fliegen", conj: { ich: "fliege", du: "fliegst", er: "fliegt", sie: "fliegt", wir: "fliegen" }, en: "fly", en3: "flies", tags: ["travel"], note: "Regular present tense conjugation." },
+        { inf: "gehen", conj: { ich: "gehe", du: "gehst", er: "geht", sie: "geht", wir: "gehen" }, en: "go", en3: "goes", tags: ["social", "home"], note: "Standard verb of movement." },
+        { inf: "essen", conj: { ich: "esse", du: "isst", er: "isst", sie: "isst", wir: "essen" }, en: "eat", en3: "eats", tags: ["social", "home"], note: "Stem-changing verb (e → i) in du/er/sie forms." },
+        { inf: "lernen", conj: { ich: "lerne", du: "lernst", er: "lernt", sie: "lernt", wir: "lernen" }, en: "study", en3: "studies", tags: ["work", "home"], note: "Regular verb." },
+        { inf: "lesen", conj: { ich: "lese", du: "liest", er: "liest", sie: "liest", wir: "lesen" }, en: "read", en3: "reads", tags: ["home", "social"], note: "Stem-changing verb (e → ie) in du/er/sie forms." },
+        { inf: "warten", conj: { ich: "warte", du: "wartest", er: "wartet", sie: "wartet", wir: "warten" }, en: "wait", en3: "waits", tags: ["travel", "social"], note: "Stem ends in -t, adding -e- before -st and -t." },
+        { inf: "trainieren", conj: { ich: "trainiere", du: "trainierst", er: "trainiert", sie: "trainiert", wir: "trainieren" }, en: "work out", en3: "works out", tags: ["home", "social"], note: "Regular -ieren verb." },
+        { inf: "bleiben", conj: { ich: "bleibe", du: "bleibst", er: "bleibt", sie: "bleibt", wir: "bleiben" }, en: "stay", en3: "stays", tags: ["home", "work", "social"], note: "Takes a static location (Dative) rather than movement." }
+    ],
+    TE: [
+        { de: "heute", en: "today", tags: ["all"], note: "Temporal adverb: sits early in the middle field (or Position 1 for emphasis)." },
+        { de: "morgen früh", en: "tomorrow morning", tags: ["all"], note: "Temporal phrase: specific point in future time." },
+        { de: "jetzt", en: "now", tags: ["all"], note: "Temporal adverb anchoring the action to the present." },
+        { de: "am Wochenende", en: "on the weekend", tags: ["social", "home", "travel"], note: "Dative contraction: an + dem = am (used for days and weekends)." },
+        { de: "jeden Montag", en: "every Monday", tags: ["work", "home"], note: "Accusative of definite time without a preposition." },
+        { de: "seit zwei Stunden", en: "for two hours", tags: ["work", "travel"], note: "'seit' always triggers Dative plural (-n on Stunden)." },
+        { de: "nach dem Essen", en: "after the meal", tags: ["home", "social"], note: "'nach' is a Dative preposition (das Essen → dem Essen)." },
+        { de: "vor der Arbeit", en: "before work", tags: ["work", "home"], note: "Two-way preposition 'vor' takes Dative for time (die Arbeit → der Arbeit)." },
+        { de: "später", en: "later", tags: ["all"], note: "Comparative temporal adverb." }
+    ],
+    KA: [
+        { de: "wegen der Deadline", en: "because of the deadline", tags: ["work"], note: "'wegen' triggers Genitive case (die Deadline → der Deadline)." },
+        { de: "trotz des Stresses", en: "despite the stress", tags: ["work"], note: "'trotz' triggers Genitive masculine (der Stress → des Stresses)." },
+        { de: "aus Langeweile", en: "out of boredom", tags: ["home", "social"], note: "'aus' + Dative expresses an internal emotional motive." },
+        { de: "wegen des Wetters", en: "because of the weather", tags: ["travel", "social"], note: "'wegen' + Genitive neuter (das Wetter → des Wetters)." },
+        { de: "dank deiner Hilfe", en: "thanks to your help", tags: ["work", "home"], note: "'dank' commonly takes Dative feminine (deine Hilfe → deiner Hilfe)." },
+        { de: "aus reiner Neugier", en: "out of pure curiosity", tags: ["social", "home"], note: "Dative feminine adjective ending (-er) after 'aus'." },
+        { de: "wegen des Staus", en: "due to the traffic jam", tags: ["travel", "work"], note: "'wegen' + Genitive masculine (der Stau → des Staus)." },
+        { de: "zur Entspannung", en: "for relaxation", tags: ["home", "social", "travel"], note: "Dative contraction (zu + der = zur) expressing purpose." }
+    ],
+    MO: [
+        { de: "sehr konzentriert", en: "very focused", tags: ["work", "home"], note: "Adverbial modifier describing how the action is performed." },
+        { de: "ganz schnell", en: "very quickly", tags: ["all"], note: "Modal adverb of speed." },
+        { de: "zu Fuß", en: "on foot", tags: ["travel", "social", "home"], note: "Fixed idiomatic modal expression." },
+        { de: "mit dem Auto", en: "by car", tags: ["travel", "work"], note: "'mit' always requires Dative (das Auto → dem Auto)." },
+        { de: "mit der Bahn", en: "by train", tags: ["travel"], note: "'mit' + Dative feminine (die Bahn → der Bahn)." },
+        { de: "ganz leise", en: "very quietly", tags: ["home", "work"], note: "Modal adverb describing manner." },
+        { de: "gerne", en: "gladly", tags: ["social", "home"], note: "Classic German adverb used to express liking an action." },
+        { de: "alleine", en: "alone", tags: ["home", "travel"], note: "Modal adverb describing accompaniment." }
+    ],
+    LO: [
+        { de: "im Büro", en: "in the office", tags: ["work"], note: "Static location: in + dem = im (Dative)." },
+        { de: "ins Homeoffice", en: "in the home office", tags: ["work", "home"], note: "Contraction of in + das = ins." },
+        { de: "nach Berlin", en: "to Berlin", tags: ["travel"], note: "'nach' is used for destinations (cities/countries without articles)." },
+        { de: "zum Supermarkt", en: "to the supermarket", tags: ["home"], note: "Direction to a masculine place: zu + dem = zum (Dative)." },
+        { de: "in den Park", en: "to the park", tags: ["social", "home"], note: "Movement/direction: two-way preposition 'in' + Accusative (der Park → den Park)." },
+        { de: "im Garten", en: "in the garden", tags: ["home", "social"], note: "Static location: in + dem = im (Dative)." },
+        { de: "ans Meer", en: "to the sea", tags: ["travel"], note: "Direction: an + das = ans (Accusative)." },
+        { de: "in der Bibliothek", en: "in the library", tags: ["work", "social"], note: "Static location: 'in' + Dative feminine (die Bibliothek → der Bibliothek)." }
+    ]
+};
+
+// --- APP STATE ---
+let currentMode = "instant";
+let currentParts = [];
+let currentEnglish = "";
+let currentStructureName = "";
+let puzzleBank = [];
+let puzzleUser = [];
+let streak = parseInt(localStorage.getItem("tekamolo_streak") || "0");
+let savedSentences = JSON.parse(localStorage.getItem("tekamolo_saved") || "[]");
+let selectedTileText = "";
+
+// --- INITIALIZATION ---
+document.getElementById("streakDisplay").innerText = `🔥 Streak: ${streak}`;
+renderSavedList();
+runGenerator();
+
+function setMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.mode === mode);
+    });
+    runGenerator();
+}
+
+function toggleTags() {
+    const show = document.getElementById("showTagsToggle").checked;
+    document.getElementById("output").classList.toggle("hide-tags", !show);
+}
+
+function getRandom(list, context, excludeDe = null) {
+    let matches = list;
+    if (context !== "all" && list[0] && list[0].tags) {
+        matches = list.filter(item => item.tags.includes(context) || item.tags.includes("all"));
+    }
+    if (excludeDe) {
+        const filtered = matches.filter(item => (item.de || item.inf) !== excludeDe);
+        if (filtered.length > 0) matches = filtered;
+    }
+    if (matches.length === 0) matches = list;
+    return matches[Math.floor(Math.random() * matches.length)];
+}
+
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function normalizeSentenceCase(parts) {
+    return parts.map((p, idx) => {
+        let text = p.de;
+        if (idx === 0) {
+            text = capitalize(text);
+        } else if (p.isPronoun) {
+            text = text.toLowerCase();
+        }
+        return { ...p, de: text };
+    });
+}
+
+function getFullGermanString(parts = currentParts) {
+    if (!parts || parts.length === 0) return "";
+    return parts.map(p => p.de).join(" ").replace(/\s+,/g, ",") + ".";
+}
+
+function runGenerator() {
+    const context = document.getElementById("contextSelect").value;
+    let structure = document.getElementById("structureSelect").value;
+    if (structure === "mixed") {
+        const opts = ["standard", "inverted", "compound"];
+        structure = opts[Math.floor(Math.random() * opts.length)];
+    }
+
+    document.getElementById("feedback").className = "feedback-banner";
+    document.getElementById("feedback").innerText = "";
+    document.getElementById("flashcardActions").style.display = "none";
+    document.getElementById("puzzleActions").style.display = "none";
+    document.getElementById("wordBank").style.display = "none";
+    document.getElementById("bankLabel").style.display = "none";
+    document.getElementById("zoneLabel").style.display = "none";
+    document.getElementById("speakTileBtn").style.display = "none";
+    document.getElementById("details").innerHTML = "Tap any revealed German block above to inspect its role, case, and word-order rule.";
+
+    const s1 = getRandom(db.subjects, context);
+    const v1 = getRandom(db.verbs, context);
+    const te = getRandom(db.TE, context);
+    const ka = getRandom(db.KA, context);
+    const mo = getRandom(db.MO, context);
+    const lo = getRandom(db.LO, context);
+
+    const v1Eng = (s1.id === "er" || s1.id === "sie") ? v1.en3 : v1.en;
+    let rawParts = [];
+
+    if (structure === "compound") {
+        currentStructureName = "🔗 Compound (Nebensatz)";
+        const conn = getRandom(db.connectors, context);
+        const s2 = getRandom(db.subjects, context);
+        const v2 = getRandom(db.verbs, context, v1.inf);
+        const mo2 = getRandom(db.MO, context, mo.de);
+        const lo2 = getRandom(db.LO, context, lo.de);
+        const v2Eng = (s2.id === "er" || s2.id === "sie") ? v2.en3 : v2.en;
+
+        rawParts = [
+            { de: s1.de, en: s1.en, role: "Subj", isPronoun: true, note: s1.note },
+            { de: v1.conj[s1.id], en: v1Eng, role: "Verb", note: `Position 2 conjugated verb (${v1.inf}). ${v1.note}` },
+            { de: te.de, en: te.en, role: "TE", note: te.note },
+            { de: lo.de, en: lo.en, role: "LO", note: lo.note },
+            { de: ",", en: "(clause separator)", role: "Comma", note: "German always separates a main clause and a subordinate clause with a comma." },
+            { de: conn.de, en: conn.en, role: "Conn", note: conn.note },
+            { de: s2.de, en: s2.en, role: "Subj", isPronoun: true, note: s2.note },
+            { de: mo2.de, en: mo2.en, role: "MO", note: mo2.note },
+            { de: lo2.de, en: lo2.en, role: "LO", note: lo2.note },
+            { de: v2.conj[s2.id], en: v2Eng, role: "SubVerb", note: `Verb-Final Rule: '${conn.de}' kicked '${v2.conj[s2.id]}' (${v2.inf}) from Position 2 to the very end!` }
+        ];
+
+        currentEnglish = `${s1.en} ${v1Eng} ${lo.en} ${te.en}, ${conn.en} ${s2.pron} ${v2Eng} ${mo2.en} ${lo2.en}.`;
+
+    } else if (structure === "inverted") {
+        currentStructureName = "🔄 Inverted (TE in Pos 1)";
+        rawParts = [
+            { de: te.de, en: te.en, role: "TE", note: `Fronted to Position 1 for emphasis! Because TE is in Position 1, the verb stays in Position 2 and the subject moves to Position 3. (${te.note})` },
+            { de: v1.conj[s1.id], en: v1Eng, role: "Verb", note: `Stays strictly in Position 2 (V2 Rule). ${v1.note}` },
+            { de: s1.de, en: s1.en, role: "Subj", isPronoun: true, note: `Inverted to Position 3 after the conjugated verb. ${s1.note}` },
+            { de: ka.de, en: ka.en, role: "KA", note: ka.note },
+            { de: mo.de, en: mo.en, role: "MO", note: mo.note },
+            { de: lo.de, en: lo.en, role: "LO", note: lo.note }
+        ];
+
+        currentEnglish = `${capitalize(te.en)}, ${s1.pron} ${v1Eng} ${ka.en} ${mo.en} ${lo.en}.`;
+
+    } else {
+        const useModal = Math.random() > 0.45;
+        if (useModal) {
+            currentStructureName = "📐 Modal Bracket (Satzklammer)";
+            const mod = getRandom(db.modals, context);
+            rawParts = [
+                { de: s1.de, en: s1.en, role: "Subj", isPronoun: true, note: s1.note },
+                { de: mod.conj[s1.id], en: mod.en[s1.id], role: "Modal", note: mod.note },
+                { de: te.de, en: te.en, role: "TE", note: te.note },
+                { de: ka.de, en: ka.en, role: "KA", note: ka.note },
+                { de: mo.de, en: mo.en, role: "MO", note: mo.note },
+                { de: lo.de, en: lo.en, role: "LO", note: lo.note },
+                { de: v1.inf, en: v1.en, role: "End", note: `Infinitive pushed to the end by the modal verb '${mod.conj[s1.id]}'.` }
+            ];
+            currentEnglish = `${s1.en} ${mod.en[s1.id]} ${v1.en} ${te.en} ${ka.en} ${mo.en} ${lo.en}.`;
+        } else {
+            currentStructureName = "📐 Standard (S-V-TEKAMOLO)";
+            rawParts = [
+                { de: s1.de, en: s1.en, role: "Subj", isPronoun: true, note: s1.note },
+                { de: v1.conj[s1.id], en: v1Eng, role: "Verb", note: `Position 2 conjugated verb (${v1.inf}). ${v1.note}` },
+                { de: te.de, en: te.en, role: "TE", note: te.note },
+                { de: ka.de, en: ka.en, role: "KA", note: ka.note },
+                { de: mo.de, en: mo.en, role: "MO", note: mo.note },
+                { de: lo.de, en: lo.en, role: "LO", note: lo.note }
+            ];
+            currentEnglish = `${s1.en} ${v1Eng} ${te.en} ${ka.en} ${mo.en} ${lo.en}.`;
+        }
+    }
+
+    currentParts = normalizeSentenceCase(rawParts);
+    document.getElementById("structureBadge").innerText = currentStructureName;
+    document.getElementById("englishText").innerText = currentEnglish;
+
+    if (currentMode === "instant") {
+        renderSolutionTiles(currentParts);
+    } else if (currentMode === "flashcard") {
+        document.getElementById("output").innerHTML = `<span style="color:#94a3b8; font-style:italic;">Translate in your head, then tap Reveal...</span>`;
+        document.getElementById("flashcardActions").style.display = "flex";
+    } else if (currentMode === "puzzle") {
+        initPuzzleMode();
+    }
+}
+
+function createTileElement(item, isNeutral = false) {
+    const div = document.createElement("div");
+    div.className = "word" + (isNeutral ? " neutral" : "");
+    div.setAttribute("data-role", item.role);
+
+    const textSpan = document.createElement("span");
+    textSpan.innerText = item.de;
+    div.appendChild(textSpan);
+
+    if (!isNeutral && item.role !== "Comma") {
+        const tag = document.createElement("span");
+        tag.className = "role-tag";
+        tag.innerText = item.role;
+        div.appendChild(tag);
+    }
+    return div;
+}
+
+function renderSolutionTiles(parts) {
+    const out = document.getElementById("output");
+    out.innerHTML = "";
+    parts.forEach(item => {
+        const tile = createTileElement(item, false);
+        tile.onclick = () => inspectTile(item);
+        out.appendChild(tile);
+    });
+    const dot = document.createElement("span");
+    dot.className = "period-mark";
+    dot.innerText = ".";
+    out.appendChild(dot);
+}
+
+function revealFlashcard() {
+    document.getElementById("flashcardActions").style.display = "none";
+    renderSolutionTiles(currentParts);
+}
+
+// --- TILE PUZZLE LOGIC ---
+function initPuzzleMode() {
+    puzzleUser = [];
+    puzzleBank = currentParts.map((item, idx) => ({ ...item, uid: idx }));
+    for (let i = puzzleBank.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [puzzleBank[i], puzzleBank[j]] = [puzzleBank[j], puzzleBank[i]];
+    }
+
+    document.getElementById("zoneLabel").style.display = "block";
+    document.getElementById("bankLabel").style.display = "block";
+    document.getElementById("wordBank").style.display = "flex";
+    document.getElementById("puzzleActions").style.display = "flex";
+    renderPuzzle();
+}
+
+function renderPuzzle() {
+    const out = document.getElementById("output");
+    const bank = document.getElementById("wordBank");
+    out.innerHTML = "";
+    bank.innerHTML = "";
+
+    if (puzzleUser.length === 0) {
+        out.innerHTML = `<span style="color:#94a3b8; font-size:0.9rem;">Tap tiles below to build the German sentence...</span>`;
+    } else {
+        puzzleUser.forEach((item, idx) => {
+            const tile = createTileElement(item, true);
+            tile.onclick = () => {
+                puzzleUser.splice(idx, 1);
+                puzzleBank.push(item);
+                document.getElementById("feedback").className = "feedback-banner";
+                renderPuzzle();
+            };
+            out.appendChild(tile);
+        });
+    }
+
+    puzzleBank.forEach((item, idx) => {
+        const tile = createTileElement(item, true);
+        tile.onclick = () => {
+            puzzleBank.splice(idx, 1);
+            puzzleUser.push(item);
+            document.getElementById("feedback").className = "feedback-banner";
+            renderPuzzle();
+        };
+        bank.appendChild(tile);
+    });
+}
+
+function checkPuzzle() {
+    const fb = document.getElementById("feedback");
+    if (puzzleUser.length < currentParts.length) {
+        fb.className = "feedback-banner err";
+        fb.innerText = "⚠️ Place all tiles from the Word Bank first!";
+        return;
+    }
+
+    const isCorrect = puzzleUser.every((item, idx) => item.de === currentParts[idx].de);
+    if (isCorrect) {
+        streak++;
+        localStorage.setItem("tekamolo_streak", streak);
+        document.getElementById("streakDisplay").innerText = `🔥 Streak: ${streak}`;
+        fb.className = "feedback-banner ok";
+        fb.innerText = "🎉 Perfekt! Exact German word order. Tap any tile to inspect its Grammar DNA.";
+        document.getElementById("wordBank").style.display = "none";
+        document.getElementById("bankLabel").style.display = "none";
+        document.getElementById("zoneLabel").style.display = "none";
+        document.getElementById("puzzleActions").style.display = "none";
+        renderSolutionTiles(currentParts);
+        speakFullSentence(0.95);
+    } else {
+        streak = 0;
+        localStorage.setItem("tekamolo_streak", 0);
+        document.getElementById("streakDisplay").innerText = `🔥 Streak: 0`;
+        fb.className = "feedback-banner err";
+        fb.innerText = "❌ Not quite! Remember: Verb in Position 2, TE → KA → MO → LO in the middle, and Nebensatz/Modal verbs at the end.";
+    }
+}
+
+function giveHint() {
+    let mismatchIdx = 0;
+    while (mismatchIdx < puzzleUser.length && puzzleUser[mismatchIdx].de === currentParts[mismatchIdx].de) {
+        mismatchIdx++;
+    }
+    if (mismatchIdx >= currentParts.length) return;
+
+    while (puzzleUser.length > mismatchIdx) {
+        puzzleBank.push(puzzleUser.pop());
+    }
+
+    const neededDe = currentParts[mismatchIdx].de;
+    const bankIdx = puzzleBank.findIndex(item => item.de === neededDe);
+    if (bankIdx !== -1) {
+        const [correctTile] = puzzleBank.splice(bankIdx, 1);
+        puzzleUser.push(correctTile);
+    }
+    renderPuzzle();
+}
+
+function resetPuzzle() {
+    while (puzzleUser.length > 0) {
+        puzzleBank.push(puzzleUser.pop());
+    }
+    document.getElementById("feedback").className = "feedback-banner";
+    renderPuzzle();
+}
+
+// --- GRAMMAR DNA INSPECTOR ---
+function inspectTile(item) {
+    const roleLabels = {
+        Subj: "Subject (Nominative — Who/What?)",
+        Verb: "Conjugated Verb (Position 2 Rule)",
+        Modal: "Modal Verb (Position 2 — Opens Verb Bracket)",
+        End: "Infinitive Verb (Closed Verb Bracket at End)",
+        SubVerb: "Subordinate Verb (Kicked to End by Connector)",
+        TE: "Temporal (TE — Wann? / When?)",
+        KA: "Kausal (KA — Warum? / Why?)",
+        MO: "Modal (MO — Wie? / How?)",
+        LO: "Lokal (LO — Wo/Wohin? / Where?)",
+        Conn: "Subordinating Connector (Nebensatz Trigger)",
+        Comma: "Punctuation (Clause Boundary)"
+    };
+
+    selectedTileText = item.de;
+    document.getElementById("speakTileBtn").style.display = item.role === "Comma" ? "none" : "inline-block";
+
+    document.getElementById("details").innerHTML = `
+        <div style="font-size:1.25rem; font-weight:700; color:var(--text); margin-bottom:4px;">${item.de}</div>
+        <div class="dna-chip">${roleLabels[item.role] || item.role}</div>
+        <div style="margin-bottom:8px;"><strong>Meaning:</strong> <em>${item.en}</em></div>
+        <div style="background:#f8fafc; padding:10px; border-radius:8px; border-left:3px solid var(--c-verb); font-size:0.9rem;">
+            ${item.note}
+        </div>
+    `;
+}
+
+// --- AUDIO, CLIPBOARD & BOOKMARKS ---
+function speakText(text, rate = 0.95) {
+    if (!("speechSynthesis" in window)) {
+        showToast("Speech synthesis not supported on this device.");
+        return;
+    }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "de-DE";
+    utter.rate = rate;
+    window.speechSynthesis.speak(utter);
+}
+
+function speakFullSentence(rate) {
+    speakText(getFullGermanString(), rate);
+}
+
+function speakSelectedTile() {
+    if (selectedTileText) speakText(selectedTileText, 0.9);
+}
+
+function copySentence() {
+    const text = getFullGermanString();
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text);
+    }
+    showToast("Copied: " + text);
+}
+
+function saveCurrentSentence() {
+    const de = getFullGermanString();
+    if (savedSentences.some(s => s.de === de)) {
+        showToast("Already saved!");
+        return;
+    }
+    savedSentences.unshift({ de, en: currentEnglish });
+    localStorage.setItem("tekamolo_saved", JSON.stringify(savedSentences));
+    renderSavedList();
+    showToast("⭐ Saved sentence!");
+}
+
+function deleteSaved(idx) {
+    savedSentences.splice(idx, 1);
+    localStorage.setItem("tekamolo_saved", JSON.stringify(savedSentences));
+    renderSavedList();
+}
+
+function clearSaved() {
+    savedSentences = [];
+    localStorage.setItem("tekamolo_saved", "[]");
+    renderSavedList();
+}
+
+function renderSavedList() {
+    document.getElementById("savedCount").innerText = `⭐ ${savedSentences.length}`;
+    const listEl = document.getElementById("savedList");
+    if (savedSentences.length === 0) {
+        listEl.innerHTML = `No saved sentences yet. Tap "⭐ Save" on any sentence you want to keep.`;
+        return;
+    }
+    listEl.innerHTML = savedSentences.map((item, idx) => `
+        <div class="saved-item">
+            <div>
+                <div style="font-weight:600; color:var(--text);">${item.de}</div>
+                <div style="font-size:0.82rem; color:var(--muted);">${item.en}</div>
+            </div>
+            <div style="display:flex; gap:6px; flex-shrink:0;">
+                <button class="mini-icon-btn" onclick="speakText('${item.de.replace(/'/g, "\\'")}', 0.9)">🔊</button>
+                <button class="mini-icon-btn" onclick="deleteSaved(${idx})">🗑️</button>
+            </div>
+        </div>
+    `).join("");
+}
+
+function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.innerText = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2200);
+}
+</script>
+</body>
+</html>
