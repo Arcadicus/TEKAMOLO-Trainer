@@ -1,1244 +1,1104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-<link rel="icon" href="/favicon.ico" sizes="any"/>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TEKAMOLO Trainer</title>
-<meta name="description" content="Free German grammar trainer: TEKAMOLO word order, verb brackets, questions, Nebensatz, der/die/das gender intuition and case drills. No sign-up.">
-<meta name="theme-color" content="#3498db">
-<style>
-:root{
-  --bg:#f4f6f9;--card:#fff;--text:#2d3748;--muted:#718096;--line:#e2e8f0;--soft:#f1f5f9;--soft2:#f8fafc;--tile:#fff;--edge:#cbd5e0;
-  --c-subj:#64748b;--c-verb:#3498db;--c-modal:#9b59b6;--c-time:#e67e22;--c-cause:#e74c3c;--c-mode:#c59d0a;--c-loc:#27ae60;--c-conn:#00acc1;--c-obj:#8d6e63;
-  --g-m:#2f6fde;--g-f:#e03168;--g-n:#2b9a4b;
-  --ok-bg:#dcfce7;--ok-tx:#166534;--ok-bd:#86efac;--err-bg:#fee2e2;--err-tx:#991b1b;--err-bd:#fca5a5;
-}
-[data-theme="dark"]{
-  --bg:#0f172a;--card:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--line:#334155;--soft:#273449;--soft2:#233044;--tile:#1e293b;--edge:#475569;
-  --c-subj:#a3b1c6;--c-verb:#5db3ee;--c-modal:#c08ee0;--c-time:#f39c4a;--c-cause:#f47b6e;--c-mode:#e6c341;--c-loc:#4fd08a;--c-conn:#3fd0e0;--c-obj:#c2a497;
-  --g-m:#6ea8ff;--g-f:#ff7aa5;--g-n:#5fd07f;
-  --ok-bg:#12351f;--ok-tx:#a7f3c0;--ok-bd:#1f6b3a;--err-bg:#3b1717;--err-tx:#fecaca;--err-bd:#7f2a2a;
-}
-*{box-sizing:border-box}
-[hidden]{display:none!important}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:16px;display:flex;flex-direction:column;align-items:center}
-button,select{font-family:inherit}
-.app{width:100%;max-width:700px;display:flex;flex-direction:column;gap:14px}
-.card{background:var(--card);padding:20px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.05);border:1px solid var(--line)}
-.header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
-h1{margin:0;font-size:1.25rem;display:flex;flex-direction:column;line-height:1.2}
-h1 small{font-size:.75rem;font-weight:600;color:var(--muted);letter-spacing:.02em}
-.stats-pill{background:var(--soft);padding:6px 6px 6px 12px;border-radius:20px;font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:10px}
-.stats-pill button{border:none;background:var(--card);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:.85rem}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--soft);padding:4px;border-radius:10px;gap:4px}
-.tabs button{background:transparent;color:var(--muted);border:none;padding:9px 6px;border-radius:8px;font-size:.88rem;font-weight:600;cursor:pointer;transition:.2s}
-.tabs button.active{background:var(--card);color:var(--c-verb);box-shadow:0 2px 6px rgba(0,0,0,.08)}
-.sub-tabs{margin-bottom:12px}
-.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.controls.one{grid-template-columns:1fr}
-@media(max-width:480px){.controls{grid-template-columns:1fr}}
-select{padding:10px 12px;border-radius:10px;border:1px solid var(--edge);font-size:.92rem;background:var(--card);color:var(--text);width:100%}
-.toggles-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:8px 4px;font-size:.88rem;color:var(--muted)}
-.toggle-label{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
-input[type=checkbox]{accent-color:var(--c-verb);transform:scale(1.15)}
-.prompt-box{font-size:1.05rem;background:var(--soft2);padding:14px 16px;border-radius:10px;border-left:4px solid var(--c-verb);margin:12px 0;line-height:1.45}
-.label{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;display:block;margin:10px 0 4px}
-.sentence-box{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:12px 0;min-height:74px;align-items:center;padding:12px;border-radius:12px;background:var(--soft2);border:1px dashed var(--edge)}
-.bank-box{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:6px;padding:12px;border-radius:12px;background:var(--soft);min-height:58px}
-.ghost{color:var(--muted);font-style:italic;font-size:.92rem}
-.word{position:relative;cursor:pointer;padding:7px 12px;background:var(--tile);border:2px solid var(--edge);border-radius:9px;font-weight:600;font-size:1rem;color:var(--text);transition:transform .15s,box-shadow .15s;display:inline-flex;flex-direction:column;align-items:center;line-height:1.2;user-select:none}
-.word:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,.08)}
-.word.sel{box-shadow:0 0 0 3px color-mix(in srgb,currentColor 25%,transparent)}
-.word .role-tag{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-top:3px;opacity:.85}
-.hide-tags .role-tag{display:none}
-.gdot{position:absolute;top:-5px;right:-5px;width:11px;height:11px;border-radius:50%;background:var(--g);border:2px solid var(--card)}
-.g-m{--g:var(--g-m)}.g-f{--g:var(--g-f)}.g-n{--g:var(--g-n)}.g-p{--g:var(--muted)}
-.word[data-role=Subj]{border-color:var(--c-subj);color:var(--c-subj)}
-.word[data-role=Verb],.word[data-role=Aux]{border-color:var(--c-verb);color:var(--c-verb)}
-.word[data-role=Modal]{border-color:var(--c-modal);color:var(--c-modal)}
-.word[data-role=Inf],.word[data-role=PP],.word[data-role=Prefix]{border-color:var(--c-verb);color:var(--c-verb);border-style:dashed}
-.word[data-role=SubVerb]{border-color:var(--c-verb);color:var(--c-verb);border-style:dotted}
-.word[data-role=TE]{border-color:var(--c-time);color:var(--c-time)}
-.word[data-role=KA]{border-color:var(--c-cause);color:var(--c-cause)}
-.word[data-role=MO]{border-color:var(--c-mode);color:var(--c-mode)}
-.word[data-role=LO]{border-color:var(--c-loc);color:var(--c-loc)}
-.word[data-role=Conn],.word[data-role=W]{border-color:var(--c-conn);color:var(--c-conn)}
-.word[data-role=Dat],.word[data-role=Akk]{border-color:var(--c-obj);color:var(--c-obj)}
-.word.neutral{border-color:var(--edge);color:var(--text);border-style:solid}
-.word.neutral.good{border-color:var(--g-n);background:var(--ok-bg)}
-.word.neutral.bad{border-color:var(--c-cause);background:var(--err-bg)}
-.period-mark{font-size:1.5rem;font-weight:700;color:var(--muted);align-self:flex-end;padding-bottom:4px}
-.primary-btn{background:var(--c-verb);color:#fff;border:none;padding:13px 18px;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;width:100%;box-shadow:0 4px 10px rgba(52,152,219,.22);transition:.15s;margin-top:12px}
-.primary-btn:active{transform:scale(.98)}
-.action-bar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.tool-btn{flex:1;min-width:80px;background:var(--soft2);color:var(--text);border:1px solid var(--edge);padding:9px 10px;border-radius:9px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.15s}
-.tool-btn:hover{background:var(--soft)}
-.tool-btn.success{background:#27ae60;color:#fff;border-color:#27ae60}
-.tool-btn.reveal{background:#475569;color:#fff;border-color:#475569}
-.feedback{margin-top:10px;padding:10px 14px;border-radius:9px;font-size:.9rem;line-height:1.5}
-.feedback.ok{background:var(--ok-bg);color:var(--ok-tx);border:1px solid var(--ok-bd)}
-.feedback.err{background:var(--err-bg);color:var(--err-tx);border:1px solid var(--err-bd)}
-.dna-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:12px}
-.dna-header h3{margin:0;font-size:1.05rem;color:var(--c-verb)}
-.chip{display:inline-block;padding:3px 9px;border-radius:6px;font-size:.78rem;font-weight:600;background:var(--soft);color:var(--text);margin:0 4px 6px 0}
-.chip.g{color:var(--g);border:1px solid var(--g);background:transparent}
-.note{background:var(--soft2);padding:10px;border-radius:8px;border-left:3px solid var(--c-verb);font-size:.9rem;line-height:1.5}
-.conj{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:10px 0 6px;font-size:.85rem}
-.conj div{padding:5px 8px;border-radius:6px;background:var(--soft)}
-.conj div span{color:var(--muted);font-size:.72rem;display:block}
-.conj div.on{background:var(--c-verb);color:#fff}.conj div.on span{color:#fff;opacity:.8}
-.mini{font-size:.82rem;color:var(--muted);margin-bottom:8px}
-.mini-icon-btn{background:var(--soft);color:var(--text);border:none;border-radius:6px;padding:6px 8px;cursor:pointer;font-size:.85rem}
-/* gender */
-.noun-card{text-align:center;padding:18px 12px;border-radius:14px;border:2px solid var(--g,var(--edge));background:var(--soft2);margin:12px 0;min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:6px}
-.noun-big{font-size:2rem;font-weight:800;color:var(--g,var(--text))}
-.noun-big .art{font-weight:600;opacity:.9}
-.noun-en{color:var(--muted);font-size:.95rem}
-.chain{margin-top:8px}
-.hint{font-size:.86rem;color:var(--text);line-height:1.45;margin-top:4px}
-.gbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.gbtn{padding:16px 6px;border-radius:12px;border:2px solid var(--g);background:transparent;color:var(--g);font-size:1.15rem;font-weight:800;cursor:pointer;transition:.12s}
-.gbtn:hover{background:var(--g);color:#fff}
-.gbtn small{display:block;font-size:.65rem;font-weight:600;opacity:.7}
-.kopts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.kopt{padding:13px 6px;border-radius:10px;border:2px solid var(--edge);background:var(--tile);color:var(--text);font-size:1.02rem;font-weight:700;cursor:pointer}
-.kopt:hover{border-color:var(--c-verb)}
-.kopt.right{border-color:var(--g-n);background:var(--ok-bg);color:var(--ok-tx)}
-.kopt.wrong{border-color:var(--c-cause);background:var(--err-bg);color:var(--err-tx)}
-.ksent{font-size:1.35rem;font-weight:700;text-align:center;line-height:1.5;padding:18px 10px;border-radius:12px;background:var(--soft2);border:1px dashed var(--edge);margin:12px 0}
-.gap{display:inline-block;min-width:64px;border-bottom:3px solid var(--muted);color:var(--g,var(--muted))}
-.progress{height:6px;border-radius:3px;background:var(--soft);overflow:hidden;margin:8px 0 2px}
-.progress i{display:block;height:100%;background:var(--g-n);width:0;transition:width .3s}
-.pat-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:6px}
-.pat-col h4{margin:10px 0 6px;color:var(--g);font-size:1rem}
-.pat{border-left:4px solid var(--g);background:var(--soft2);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:.86rem;line-height:1.45}
-.pat b.k{color:var(--g)}
-.pat .ex{color:var(--muted);font-size:.82rem}
-.saved-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--soft);font-size:.9rem}
-.saved-item:last-child{border-bottom:none}
-.ad-slot{min-height:60px;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.about-card{background:var(--soft2);border:1px solid var(--line);border-radius:16px;padding:18px 20px;text-align:center;font-size:.88rem;color:var(--muted);line-height:1.55}
-.about-title{font-weight:700;color:var(--text);margin-bottom:6px;font-size:.95rem}
-.support-btn{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:8px 16px;background:var(--card);color:var(--text);border:1.5px solid var(--edge);border-radius:20px;text-decoration:none;font-weight:600;font-size:.85rem;transition:.2s}
-.support-btn:hover{border-color:var(--c-time);color:var(--c-time);transform:translateY(-1px)}
-.attribution-line{margin-top:12px;font-size:.8rem}
-.keys{font-size:.75rem;color:var(--muted);text-align:center;margin-top:10px}
-kbd{background:var(--soft);border:1px solid var(--edge);border-radius:4px;padding:0 5px;font-size:.72rem}
-#toast{position:fixed;bottom:20px;background:#1e293b;color:#fff;padding:10px 18px;border-radius:20px;font-size:.88rem;opacity:0;pointer-events:none;transition:opacity .25s;z-index:99;max-width:90vw}
-#toast.show{opacity:1}
-</style>
+    <link rel="icon" href="/favicon.ico" sizes="any"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEKAMOLO Trainer</title>
+    <style>
+        :root { 
+            --bg: #f4f6f9;
+            --card: #ffffff;
+            --text: #2d3748;
+            --muted: #718096;
+            --c-subj: #64748b;   /* Slate */
+            --c-verb: #3498db;   /* Blue */
+            --c-modal: #9b59b6;  /* Purple */
+            --c-time: #e67e22;   /* Orange */
+            --c-cause: #e74c3c;  /* Red */
+            --c-mode: #d4ac0d;   /* Warm Gold */
+            --c-loc: #27ae60;    /* Green */
+            --c-conn: #00acc1;   /* Cyan */
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background: var(--bg); 
+            color: var(--text);
+            margin: 0; 
+            padding: 16px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        
+        .app-container { 
+            width: 100%; 
+            max-width: 680px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 14px; 
+        }
+        
+        .card { 
+            background: var(--card); 
+            padding: 20px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
+            border: 1px solid #edf2f7;
+        }
+
+        /* Header & Streak */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .header-row h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stats-pill {
+            background: #f1f5f9;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Mode Switcher */
+        .mode-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            gap: 4px;
+        }
+
+        .mode-btn {
+            background: transparent;
+            color: var(--muted);
+            border: none;
+            padding: 8px 6px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: none;
+            transition: 0.2s;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: var(--c-verb);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+
+        /* Controls */
+        .controls { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 8px; 
+            margin-bottom: 10px; 
+        }
+
+        @media (max-width: 480px) {
+            .controls { grid-template-columns: 1fr; }
+        }
+        
+        select { 
+            padding: 10px 12px; 
+            border-radius: 10px; 
+            border: 1px solid #cbd5e0; 
+            font-size: 0.92rem; 
+            background: #fff; 
+            color: var(--text);
+            width: 100%;
+        }
+
+        .toggles-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 8px 4px;
+            font-size: 0.88rem;
+            color: var(--muted);
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        input[type="checkbox"] {
+            accent-color: var(--c-verb);
+            transform: scale(1.15);
+        }
+
+        /* English Prompt Box */
+        .prompt-box { 
+            font-size: 1.05rem; 
+            color: #334155; 
+            background: #f8fafc; 
+            padding: 14px 16px; 
+            border-radius: 10px; 
+            border-left: 4px solid var(--c-verb);
+            margin: 12px 0;
+            text-align: left;
+            line-height: 1.45;
+        }
+
+        .prompt-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Sentence & Puzzle Areas */
+        .zone-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            font-weight: 700;
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .sentence-box { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 8px; 
+            margin: 12px 0; 
+            min-height: 74px; 
+            align-items: center;
+            padding: 12px;
+            border-radius: 12px;
+            background: #fcfdfe;
+            border: 1px dashed #cbd5e0;
+        }
+
+        .bank-box {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 12px;
+            background: #f1f5f9;
+            min-height: 58px;
+        }
+
+        /* Word Tiles (Clean Outline Style) */
+        .word { 
+            cursor: pointer; 
+            padding: 7px 12px; 
+            background: white; 
+            border: 2px solid #cbd5e0; 
+            border-radius: 9px; 
+            font-weight: 600; 
+            font-size: 1rem; 
+            color: var(--text);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.2;
+            user-select: none;
+        }
+
+        .word:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+        }
+
+        .word .role-tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 3px;
+            opacity: 0.85;
+        }
+
+        .hide-tags .role-tag { display: none; }
+
+        /* Outline Role Colors */
+        .word[data-role="Subj"]    { border-color: var(--c-subj); color: var(--c-subj); }
+        .word[data-role="Verb"]    { border-color: var(--c-verb); color: var(--c-verb); }
+        .word[data-role="Modal"]   { border-color: var(--c-modal); color: var(--c-modal); }
+        .word[data-role="End"]     { border-color: var(--c-verb); color: var(--c-verb); border-style: dashed; }
+        .word[data-role="SubVerb"] { border-color: var(--c-verb); color: var(--c-verb); border-style: dotted; }
+        .word[data-role="TE"]      { border-color: var(--c-time); color: var(--c-time); }
+        .word[data-role="KA"]      { border-color: var(--c-cause); color: var(--c-cause); }
+        .word[data-role="MO"]      { border-color: var(--c-mode); color: var(--c-mode); }
+        .word[data-role="LO"]      { border-color: var(--c-loc); color: var(--c-loc); }
+        .word[data-role="Conn"]    { border-color: var(--c-conn); color: var(--c-conn); }
+        
+        /* Neutral tiles for Puzzle Mode before solving */
+        .word.neutral {
+            border-color: #94a3b8;
+            color: #334155;
+        }
+
+        .word[data-role="Comma"] { 
+            border: 2px solid #cbd5e0;
+            color: var(--text);
+            padding: 7px 10px;
+        }
+
+        .period-mark {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--muted);
+            align-self: flex-end;
+            padding-bottom: 4px;
+        }
+
+        /* Action Buttons */
+        .primary-btn { 
+            background: var(--c-verb); 
+            color: white; 
+            border: none; 
+            padding: 13px 18px; 
+            border-radius: 10px; 
+            font-size: 1rem; 
+            font-weight: 700; 
+            cursor: pointer; 
+            width: 100%; 
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.22);
+            transition: 0.15s;
+        }
+        .primary-btn:active { transform: scale(0.98); }
+
+        .action-bar {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            flex: 1;
+            min-width: 80px;
+            background: #f8fafc;
+            color: var(--text);
+            border: 1px solid #cbd5e0;
+            padding: 9px 10px;
+            border-radius: 9px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .tool-btn:hover { background: #edf2f7; }
+        .tool-btn.success { background: #27ae60; color: white; border-color: #27ae60; }
+        .tool-btn.reveal { background: #475569; color: white; border-color: #475569; }
+
+        .feedback-banner {
+            margin-top: 10px;
+            padding: 10px 14px;
+            border-radius: 9px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+        .feedback-banner.ok { display: block; background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .feedback-banner.err { display: block; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+        /* Grammar DNA Sidebar */
+        .dna-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #edf2f7;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+        .dna-header h3 { margin: 0; font-size: 1.05rem; color: var(--c-verb); }
+
+        .dna-chip {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            background: #f1f5f9;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        /* Saved List */
+        .saved-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+        }
+        .saved-item:last-child { border-bottom: none; }
+        .mini-icon-btn {
+            background: #f1f5f9;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        /* About & Attribution Footer */
+        .about-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 18px 20px;
+            text-align: center;
+            font-size: 0.88rem;
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        .about-title {
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .support-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+            padding: 8px 16px;
+            background: white;
+            color: var(--text);
+            border: 1.5px solid #cbd5e0;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .support-btn:hover {
+            border-color: var(--c-time);
+            color: var(--c-time);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+        }
+
+        .attribution-line {
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            background: #1e293b;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 0.88rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+            z-index: 99;
+        }
+        #toast.show { opacity: 1; }
+    </style>
 </head>
 <body>
-<div class="app">
 
-  <header class="card">
-    <div class="header-row">
-      <h1>🇩🇪 TEKAMOLO Trainer <small>German grammar by feel, not by table</small></h1>
-      <div class="stats-pill">
-        <span id="streakDisplay" title="Correct answers in a row">🔥 0</span>
-        <span id="seenDisplay" title="Sentences and words seen today">👁 0</span>
-        <span id="savedCount" title="Saved sentences">⭐ 0</span>
-        <button id="themeBtn" title="Light / dark" onclick="toggleTheme()">🌓</button>
-      </div>
-    </div>
-    <nav class="tabs" id="mainTabs">
-      <button data-tab="S" class="active" onclick="setTab('S')">🧱 Sentences</button>
-      <button data-tab="G" onclick="setTab('G')">🎨 der · die · das</button>
-      <button data-tab="K" onclick="setTab('K')">🎯 Cases</button>
-    </nav>
-    <div class="toggles-row" style="padding-bottom:0">
-      <label class="toggle-label"><input type="checkbox" id="autoToggle" onchange="setOpt('auto',this.checked)"> 🔊 Auto-speak new items</label>
-      <span id="structureBadge" style="font-weight:600;color:var(--c-verb)"></span>
-    </div>
-  </header>
-
-  <!-- ============ SENTENCES ============ -->
-  <section id="tabS">
+<div class="app-container">
+    <!-- MAIN PRACTICE CARD -->
     <div class="card">
-      <div class="tabs sub-tabs" id="modeTabs">
-        <button data-mode="instant" class="active" onclick="setMode('instant')">⚡ Instant</button>
-        <button data-mode="flashcard" onclick="setMode('flashcard')">🧠 Flashcard</button>
-        <button data-mode="puzzle" onclick="setMode('puzzle')">🧩 Tile Puzzle</button>
-      </div>
-      <div class="controls">
-        <select id="contextSelect" onchange="nextSentence()">
-          <option value="all">🌐 Mix All Contexts</option>
-          <option value="w">🏢 Work &amp; Study</option>
-          <option value="t">✈️ Travel &amp; Commute</option>
-          <option value="s">☕ Social &amp; Leisure</option>
-          <option value="h">🏠 Home &amp; Daily Life</option>
-        </select>
-        <select id="structureSelect" onchange="nextSentence()">
-          <option value="mixed">🎲 Mixed Structures</option>
-          <option value="main">📐 Main clause (V2 &amp; inversion)</option>
-          <option value="bracket">🧲 Verb bracket (modal · Perfekt · Futur · separable)</option>
-          <option value="question">❓ Questions (W- &amp; yes/no)</option>
-          <option value="clause">🔗 Connectors &amp; Nebensatz</option>
-          <option value="objects">🎁 Dative + Accusative objects</option>
-        </select>
-      </div>
-      <div class="toggles-row">
-        <label class="toggle-label"><input type="checkbox" id="showTagsToggle" onchange="setOpt('tags',this.checked)"> Show role badges</label>
-        <span style="font-size:.78rem">● dot = noun gender: <b class="g-m" style="color:var(--g)">der</b> <b class="g-f" style="color:var(--g)">die</b> <b class="g-n" style="color:var(--g)">das</b></span>
-      </div>
-      <div class="prompt-box"><span class="label" style="margin-top:0">English Meaning</span><span id="englishText">…</span></div>
-      <span id="zoneLabel" class="label" hidden>Your sentence (tap a tile to remove it)</span>
-      <div id="output" class="sentence-box" lang="de"></div>
-      <span id="bankLabel" class="label" hidden>Word bank (tap in German order)</span>
-      <div id="wordBank" class="bank-box" lang="de" hidden></div>
-      <div id="feedback" class="feedback" hidden></div>
-      <div id="flashcardActions" class="action-bar" hidden><button class="tool-btn reveal" onclick="revealFlashcard()">👁️ Reveal German</button></div>
-      <div id="puzzleActions" class="action-bar" hidden>
-        <button class="tool-btn success" onclick="checkPuzzle()">✅ Check</button>
-        <button class="tool-btn" onclick="giveHint()">💡 Hint</button>
-        <button class="tool-btn" onclick="resetPuzzle()">↩️ Reset</button>
-      </div>
-      <div class="action-bar">
-        <button class="tool-btn" onclick="speakSentence(.95)">🔊 Listen</button>
-        <button class="tool-btn" onclick="speakSentence(.65)">🐢 Slow</button>
-        <button class="tool-btn" onclick="copySentence()">📋 Copy</button>
-        <button class="tool-btn" onclick="saveSentence()">⭐ Save</button>
-      </div>
-      <button class="primary-btn" onclick="nextSentence()">✨ Next Sentence</button>
-      <div class="keys"><kbd>N</kbd> / <kbd>→</kbd> next · <kbd>L</kbd> listen · <kbd>R</kbd> reveal</div>
-    </div>
-    <div class="card" style="margin-top:14px">
-      <div class="dna-header"><h3>🧬 Grammar DNA</h3><button id="speakTileBtn" class="mini-icon-btn" hidden onclick="speakSelected()">🔊 Hear phrase</button></div>
-      <div id="details" style="line-height:1.55;font-size:.95rem"></div>
-    </div>
-  </section>
+        <div class="header-row">
+            <h2>🇩🇪 TEKAMOLO Trainer</h2>
+            <div class="stats-pill">
+                <span id="streakDisplay">🔥 Streak: 0</span>
+                <span>|</span>
+                <span id="savedCount">⭐ 0</span>
+            </div>
+        </div>
 
-  <!-- ============ GENDER ============ -->
-  <section id="tabG" hidden>
+        <!-- Mode Selector -->
+        <div class="mode-tabs">
+            <button class="mode-btn active" data-mode="instant" onclick="setMode('instant')">⚡ Instant</button>
+            <button class="mode-btn" data-mode="flashcard" onclick="setMode('flashcard')">🧠 Flashcard</button>
+            <button class="mode-btn" data-mode="puzzle" onclick="setMode('puzzle')">🧩 Tile Puzzle</button>
+        </div>
+        
+        <div class="controls">
+            <select id="contextSelect" onchange="runGenerator()">
+                <option value="all">🌐 Mix All Contexts</option>
+                <option value="work">🏢 Work & Office</option>
+                <option value="travel">✈️ Travel & Commute</option>
+                <option value="social">☕ Social & Leisure</option>
+                <option value="home">🏠 Home & Daily Life</option>
+            </select>
+            <select id="structureSelect" onchange="runGenerator()">
+                <option value="mixed">🎲 Mixed Structures</option>
+                <option value="standard">📐 Standard (V2 / Modal)</option>
+                <option value="inverted">🔄 Inverted (Time First)</option>
+                <option value="compound">🔗 Compound (Nebensatz)</option>
+            </select>
+        </div>
+
+        <div class="toggles-row">
+            <label class="toggle-label">
+                <input type="checkbox" id="showTagsToggle" checked onchange="toggleTags()">
+                Show Role Badges
+            </label>
+            <span id="structureBadge" style="font-weight:600; color:var(--c-verb);"></span>
+        </div>
+        
+        <!-- English Reference / Goal -->
+        <div id="promptBox" class="prompt-box">
+            <span class="prompt-label">English Meaning</span>
+            <span id="englishText">Generating...</span>
+        </div>
+
+        <!-- Sentence Display / Puzzle Construction Zone -->
+        <div id="zoneLabel" class="zone-label" style="display:none;">Your Sentence (tap tile to remove):</div>
+        <div id="output" class="sentence-box"></div>
+
+        <!-- Puzzle Word Bank -->
+        <div id="bankLabel" class="zone-label" style="display:none;">Word Bank (tap in correct German order):</div>
+        <div id="wordBank" class="bank-box" style="display:none;"></div>
+
+        <!-- Puzzle Feedback -->
+        <div id="feedback" class="feedback-banner"></div>
+
+        <!-- Mode-specific Action Buttons -->
+        <div id="flashcardActions" class="action-bar" style="display:none;">
+            <button class="tool-btn reveal" onclick="revealFlashcard()">👁️ Reveal German Solution</button>
+        </div>
+
+        <div id="puzzleActions" class="action-bar" style="display:none;">
+            <button class="tool-btn success" onclick="checkPuzzle()">✅ Check Order</button>
+            <button class="tool-btn" onclick="giveHint()">💡 Hint</button>
+            <button class="tool-btn" onclick="resetPuzzle()">↩️ Reset</button>
+        </div>
+
+        <!-- Audio & Utility Bar -->
+        <div class="action-bar" id="utilityBar">
+            <button class="tool-btn" onclick="speakFullSentence(0.95)">🔊 Listen</button>
+            <button class="tool-btn" onclick="speakFullSentence(0.65)">🐢 Slow</button>
+            <button class="tool-btn" onclick="copySentence()">📋 Copy</button>
+            <button class="tool-btn" onclick="saveCurrentSentence()">⭐ Save</button>
+        </div>
+
+        <div style="margin-top: 12px;">
+            <button class="primary-btn" onclick="runGenerator()">✨ Next Sentence</button>
+        </div>
+    </div>
+
+    <!-- GRAMMAR DNA CARD -->
     <div class="card">
-      <div class="tabs sub-tabs" id="gTabs">
-        <button data-g="absorb" class="active" onclick="setGMode('absorb')">👀 Absorb</button>
-        <button data-g="tap" onclick="setGMode('tap')">⚡ Quick Tap</button>
-        <button data-g="patterns" onclick="setGMode('patterns')">📚 Patterns</button>
-      </div>
-      <div id="gControls" class="controls one"><select id="gCat" onchange="gNext()"></select></div>
-      <div id="gStage"></div>
-      <div id="gButtons" class="gbtns" hidden>
-        <button class="gbtn g-m" onclick="gAnswer('m')">der<small>1</small></button>
-        <button class="gbtn g-f" onclick="gAnswer('f')">die<small>2</small></button>
-        <button class="gbtn g-n" onclick="gAnswer('n')">das<small>3</small></button>
-      </div>
-      <div id="gProgressWrap" hidden><div class="progress"><i id="gBar"></i></div><div class="mini" id="gProgText"></div></div>
-      <div id="gActions" class="action-bar"><button class="tool-btn" onclick="gSpeak()">🔊 Listen</button></div>
-      <button id="gNextBtn" class="primary-btn" onclick="gNext()">✨ Next Word</button>
-      <div class="keys" id="gKeys"><kbd>1</kbd> der · <kbd>2</kbd> die · <kbd>3</kbd> das · <kbd>N</kbd> / <kbd>→</kbd> next</div>
+        <div class="dna-header">
+            <h3>🧬 Grammar DNA</h3>
+            <button id="speakTileBtn" class="mini-icon-btn" style="display:none;" onclick="speakSelectedTile()">🔊 Hear Phrase</button>
+        </div>
+        <div id="details" style="color: #4a5568; line-height: 1.55; font-size: 0.95rem;">
+            Tap any revealed German block above to inspect its role, case, and word-order rule.
+        </div>
     </div>
-  </section>
 
-  <!-- ============ CASES ============ -->
-  <section id="tabK" hidden>
+    <!-- SAVED SENTENCES CARD -->
     <div class="card">
-      <div class="controls one">
-        <select id="kFocus" onchange="kNext()">
-          <option value="mix">🎲 All cases mixed</option>
-          <option value="NA">Nominative &amp; Accusative</option>
-          <option value="D">Dative (prepositions &amp; Dative verbs)</option>
-          <option value="G">Genitive (wegen, trotz, of)</option>
-          <option value="W">Two-way: Wohin? vs. Wo? (in / auf)</option>
-        </select>
-      </div>
-      <div class="prompt-box"><span class="label" style="margin-top:0">English Meaning</span><span id="kEnglish">…</span></div>
-      <div id="kSentence" class="ksent" lang="de"></div>
-      <div id="kOptions" class="kopts"></div>
-      <div id="kFeedback" class="feedback" hidden></div>
-      <div class="action-bar"><button class="tool-btn" onclick="kSpeak()">🔊 Listen</button></div>
-      <button class="primary-btn" onclick="kNext()">✨ Next</button>
-      <div class="keys"><kbd>1</kbd>–<kbd>6</kbd> answer · <kbd>N</kbd> / <kbd>→</kbd> next</div>
+        <div class="dna-header" style="margin-bottom: 6px;">
+            <h3>⭐ Saved Sentences</h3>
+            <button class="mini-icon-btn" onclick="clearSaved()">Clear All</button>
+        </div>
+        <div id="savedList" style="color: var(--muted); font-size: 0.9rem;">
+            No saved sentences yet. Tap "⭐ Save" on any sentence you want to keep.
+        </div>
     </div>
-  </section>
 
-  <div class="card">
-    <div class="dna-header" style="margin-bottom:6px"><h3>⭐ Saved Sentences</h3><button class="mini-icon-btn" onclick="clearSaved()">Clear all</button></div>
-    <div id="savedList" style="color:var(--muted);font-size:.9rem"></div>
-  </div>
-
-  <!-- AD SLOT: paste your ad snippet inside this div and delete the "hidden" attribute. One small unit here keeps it out of the practice flow. -->
-  <div id="adSlot" class="ad-slot" hidden></div>
-
-  <footer class="about-card">
-    <div class="about-title">About TEKAMOLO Trainer</div>
-    <div>An intuition-first German grammar trainer: <strong>TE-KA-MO-LO</strong> word order, V2 inversion, verb brackets, questions, connectors, noun gender and cases — learned through fast repetition and tappable explanations rather than tables.</div>
-    <a href="https://ko-fi.com/arcadicus" target="_blank" rel="noopener noreferrer" class="support-btn">☕ Support this free tool</a>
-    <div class="attribution-line">Designed &amp; built with AI by <strong>Gethro</strong></div>
-  </footer>
+    <!-- ABOUT & ATTRIBUTION FOOTER -->
+    <footer class="about-card">
+        <div class="about-title">About TEKAMOLO Trainer</div>
+        <div>
+            An interactive German syntax trainer built to help learners master <strong>TE-KA-MO-LO</strong> word order, V2 inversion, modal brackets, and subordinate clauses through hands-on pattern recognition.
+        </div>
+        <a href="https://ko-fi.com/arcadicus" target="_blank" rel="noopener noreferrer" class="support-btn">
+            ☕ Support this free tool
+        </a>
+        <div class="attribution-line">
+            Designed &amp; built with AI by <strong>Gethro</strong>
+        </div>
+    </footer>
 </div>
-<div id="toast"></div>
+
+<div id="toast">Copied!</div>
 
 <script>
-"use strict";
-/* ================= HELPERS ================= */
-const $=id=>document.getElementById(id);
-const pick=a=>a[Math.floor(Math.random()*a.length)];
-const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
-const store={
-  get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
-  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-};
-const ART={m:"der",f:"die",n:"das"}, GNAME={m:"masculine",f:"feminine",n:"neuter"};
-const DEF={m:{N:"der",A:"den",D:"dem",G:"des"},f:{N:"die",A:"die",D:"der",G:"der"},n:{N:"das",A:"das",D:"dem",G:"des"}};
-const IND={m:{N:"ein",A:"einen",D:"einem",G:"eines"},f:{N:"eine",A:"eine",D:"einer",G:"einer"},n:{N:"ein",A:"ein",D:"einem",G:"eines"}};
-const CASE={N:"Nominative",A:"Accusative",D:"Dative",G:"Genitive"};
-const aAn=w=>(/^(hour)/i.test(w)||(/^[aeiou]/i.test(w)&&!/^uni/i.test(w))?"an ":"a ")+w;
-const enOf=n=>n.en.split(" / ")[0].replace(/ \(.*\)/,"");
-
-/* ================= NOUN LEXICON =================
-   gender|noun|plural|english|tags|pattern
-   tags: h home, w work, t travel, s social, p people, f food, n nature/time, a abstract, b body
-         P person, G giftable thing, I "in"-place, S surface.  pattern "!x" = exception to pattern x */
-const NOUNS=`m|Tisch|Tische|table|hS
-m|Stuhl|Stühle|chair|hS
-f|Lampe|Lampen|lamp|hG|e
-n|Bett|Betten|bed|hS
-n|Sofa|Sofas|sofa|hS
-f|Küche|Küchen|kitchen|hI|e
-n|Fenster|Fenster|window|h
-f|Tür|Türen|door|h
-m|Schlüssel|Schlüssel|key|hG
-m|Kühlschrank|Kühlschränke|fridge|h
-m|Schrank|Schränke|wardrobe / cupboard|h
-n|Zimmer|Zimmer|room|hI
-n|Wohnzimmer|Wohnzimmer|living room|hI
-n|Bad|Bäder|bathroom|hI
-m|Keller|Keller|basement|hI
-m|Garten|Gärten|garden|hI
-f|Wohnung|Wohnungen|apartment|hI|ung
-n|Haus|Häuser|house|hI
-m|Boden|Böden|floor|hS
-f|Wand|Wände|wall|h
-m|Spiegel|Spiegel|mirror|h
-f|Uhr|Uhren|clock / watch|hG
-m|Teppich|Teppiche|carpet|h|ich
-f|Kommode|Kommoden|dresser|hS|e
-n|Regal|Regale|shelf|h
-f|Dusche|Duschen|shower|h|e
-n|Handtuch|Handtücher|towel|h
-f|Waschmaschine|Waschmaschinen|washing machine|h|e
-m|Balkon|Balkone|balcony|h
-f|Treppe|Treppen|stairs|h|e
-n|Kissen|Kissen|pillow|h
-f|Decke|Decken|blanket / ceiling|h|e
-f|Zeitung|Zeitungen|newspaper|hG|ung
-f|Jacke|Jacken|jacket|hG|e
-f|Tasche|Taschen|bag|hG|e
-m|Regenschirm|Regenschirme|umbrella|hG
-n|Hemd|Hemden|shirt|h
-f|Hose|Hosen|trousers|h|e
-m|Schuh|Schuhe|shoe|h
-n|Kleid|Kleider|dress|h
-m|Mantel|Mäntel|coat|h
-m|Hut|Hüte|hat|h
-f|Brille|Brillen|glasses|h|e
-n|Büro|Büros|office|wI|o
-m|Computer|Computer|computer|w|er
-m|Drucker|Drucker|printer|w|er
-m|Schreibtisch|Schreibtische|desk|wS
-f|Besprechung|Besprechungen|meeting|w|ung
-f|Aufgabe|Aufgaben|task|w|e
-m|Termin|Termine|appointment|w
-f|Pause|Pausen|break|w|e
-m|Chef|Chefs|boss (m)|wP
-f|Chefin|Chefinnen|boss (f)|wP|in
-f|Kollegin|Kolleginnen|colleague (f)|wP|in
-m|Lehrer|Lehrer|teacher (m)|wP|er
-f|Lehrerin|Lehrerinnen|teacher (f)|wP|in
-f|Schule|Schulen|school|wI|e
-f|Universität|Universitäten|university|w|taet
-f|Prüfung|Prüfungen|exam|w|ung
-m|Stift|Stifte|pen|wG
-n|Heft|Hefte|notebook|w
-n|Buch|Bücher|book|wG
-m|Brief|Briefe|letter|wG
-f|Bibliothek|Bibliotheken|library|wI
-n|Projekt|Projekte|project|w
-f|Firma|Firmen|company|w
-m|Vertrag|Verträge|contract|w
-f|Rechnung|Rechnungen|bill / invoice|w|ung
-n|Dokument|Dokumente|document|w|ment
-f|Präsentation|Präsentationen|presentation|w|ion
-f|Erfahrung|Erfahrungen|experience|w|ung
-n|Gehalt|Gehälter|salary|w
-m|Beruf|Berufe|profession|w
-f|Wissenschaft|Wissenschaften|science|w|schaft
-n|Studium|Studien|degree studies|w|um
-m|Fehler|Fehler|mistake|w
-f|Lösung|Lösungen|solution|w|ung
-n|Problem|Probleme|problem|w
-f|Sprache|Sprachen|language|w|e
-n|Wort|Wörter|word|w
-m|Satz|Sätze|sentence|w
-f|Frage|Fragen|question|w|e
-f|Antwort|Antworten|answer|w
-m|Bahnhof|Bahnhöfe|train station|t
-m|Flughafen|Flughäfen|airport|t
-m|Zug|Züge|train|t
-m|Bus|Busse|bus|t
-n|Auto|Autos|car|t|o
-n|Fahrrad|Fahrräder|bicycle|tG
-n|Flugzeug|Flugzeuge|airplane|t
-n|Ticket|Tickets|ticket|tG
-m|Koffer|Koffer|suitcase|t
-m|Rucksack|Rucksäcke|backpack|tG
-f|Reise|Reisen|trip|t|e
-f|Straße|Straßen|street|t|e
-f|Stadt|Städte|city|tI
-n|Hotel|Hotels|hotel|tI
-m|Pass|Pässe|passport|t
-f|Karte|Karten|map / card|tG|e
-f|Haltestelle|Haltestellen|bus stop|t|e
-f|Brücke|Brücken|bridge|t|e
-m|Platz|Plätze|square / seat|t
-n|Museum|Museen|museum|tI|um
-f|Kirche|Kirchen|church|tI|e
-f|Apotheke|Apotheken|pharmacy|tI|e
-m|Supermarkt|Supermärkte|supermarket|tI
-f|Bäckerei|Bäckereien|bakery|tI|ei
-f|Polizei|-|police|t|ei
-n|Krankenhaus|Krankenhäuser|hospital|t
-f|Ampel|Ampeln|traffic light|t
-f|Grenze|Grenzen|border|t|e
-m|Urlaub|Urlaube|vacation|t
-f|Verspätung|Verspätungen|delay|t|ung
-f|Richtung|Richtungen|direction|t|ung
-n|Land|Länder|country|t
-f|Fahrt|Fahrten|ride / journey|t
-m|Freund|Freunde|friend (m)|sP
-f|Freundin|Freundinnen|friend (f)|sP|in
-n|Kino|Kinos|cinema|sI|o
-n|Restaurant|Restaurants|restaurant|sI
-n|Café|Cafés|café|sI
-m|Park|Parks|park|sI
-f|Party|Partys|party|s
-n|Geschenk|Geschenke|gift|sG|ge
-m|Film|Filme|film|s
-f|Musik|-|music|s|ik
-n|Lied|Lieder|song|s
-n|Spiel|Spiele|game|s
-m|Ball|Bälle|ball|sG
-f|Gitarre|Gitarren|guitar|s|e
-n|Konzert|Konzerte|concert|s
-m|Sport|-|sport|s
-f|Mannschaft|Mannschaften|team|s|schaft
-f|Freundschaft|Freundschaften|friendship|s|schaft
-n|Hobby|Hobbys|hobby|s
-f|Einladung|Einladungen|invitation|s|ung
-m|Geburtstag|Geburtstage|birthday|s|time
-n|Wochenende|Wochenenden|weekend|s
-m|Abend|Abende|evening|s|time
-m|Gast|Gäste|guest|sP
-n|Foto|Fotos|photo|sG|o
-n|Handy|Handys|mobile phone|sG
-f|Nachricht|Nachrichten|message|s
-m|Witz|Witze|joke|s
-f|Bar|Bars|bar|s
-n|Bier|Biere|beer|s|!alc
-m|Wein|Weine|wine|s|alc
-m|Mann|Männer|man / husband|pP
-f|Frau|Frauen|woman / wife|pP
-n|Kind|Kinder|child|pP
-n|Mädchen|Mädchen|girl|pP|chen
-n|Baby|Babys|baby|pP
-m|Bruder|Brüder|brother|pP
-f|Schwester|Schwestern|sister|pP
-f|Mutter|Mütter|mother|pP
-m|Vater|Väter|father|pP
-f|Tochter|Töchter|daughter|pP
-m|Sohn|Söhne|son|pP
-f|Oma|Omas|grandma|pP
-m|Opa|Opas|grandpa|pP
-f|Tante|Tanten|aunt|pP|e
-m|Onkel|Onkel|uncle|pP
-m|Arzt|Ärzte|doctor (m)|pP
-f|Ärztin|Ärztinnen|doctor (f)|pP|in
-f|Nachbarin|Nachbarinnen|neighbour (f)|pP|in
-f|Familie|Familien|family|p|ie
-m|Lehrling|Lehrlinge|apprentice|p|ling
-m|Kaffee|Kaffees|coffee|fG
-m|Tee|Tees|tea|f
-n|Wasser|-|water|f
-n|Brot|Brote|bread|f
-n|Brötchen|Brötchen|bread roll|f|chen
-f|Butter|-|butter|f
-m|Käse|-|cheese|f|!e
-m|Apfel|Äpfel|apple|f
-f|Banane|Bananen|banana|f|e
-f|Tomate|Tomaten|tomato|f|e
-f|Kartoffel|Kartoffeln|potato|f
-n|Ei|Eier|egg|f
-f|Milch|-|milk|f
-m|Kuchen|Kuchen|cake|fG
-f|Pizza|Pizzen|pizza|fG
-f|Suppe|Suppen|soup|f|e
-m|Salat|Salate|salad|f
-n|Fleisch|-|meat|f
-m|Fisch|Fische|fish|f
-m|Reis|-|rice|f
-n|Gemüse|-|vegetables|f|ge
-n|Obst|-|fruit|f
-m|Zucker|-|sugar|f
-n|Salz|-|salt|f
-m|Honig|-|honey|f|ich
-f|Tasse|Tassen|cup|fG|e
-n|Glas|Gläser|glass|f
-m|Teller|Teller|plate|f
-m|Löffel|Löffel|spoon|f
-f|Gabel|Gabeln|fork|f
-n|Messer|Messer|knife|f
-f|Flasche|Flaschen|bottle|f|e
-n|Frühstück|-|breakfast|f
-n|Essen|-|food / meal|f|inf
-m|Hunger|-|hunger|f
-m|Durst|-|thirst|f
-f|Schokolade|Schokoladen|chocolate|f|e
-m|Saft|Säfte|juice|f
-m|Hund|Hunde|dog|n
-f|Katze|Katzen|cat|n|e
-m|Vogel|Vögel|bird|n
-n|Pferd|Pferde|horse|n
-n|Tier|Tiere|animal|n
-m|Baum|Bäume|tree|n
-f|Blume|Blumen|flower|nG|e
-m|Wald|Wälder|forest|nI
-m|Berg|Berge|mountain|n
-m|See|Seen|lake|n
-n|Meer|Meere|sea|n
-m|Fluss|Flüsse|river|n
-f|Insel|Inseln|island|n
-m|Strand|Strände|beach|n
-f|Sonne|-|sun|n|e
-m|Mond|Monde|moon|n
-m|Stern|Sterne|star|n
-m|Himmel|-|sky|n
-m|Regen|-|rain|n|wx
-m|Schnee|-|snow|n|wx
-m|Wind|Winde|wind|n|wx
-n|Wetter|-|weather|n|!wx
-n|Gewitter|Gewitter|thunderstorm|n|ge
-f|Luft|-|air|n
-m|Sommer|Sommer|summer|n|time
-m|Winter|Winter|winter|n|time
-m|Frühling|Frühlinge|spring|n|time
-m|Herbst|Herbste|autumn|n|time
-m|Montag|Montage|Monday|n|time
-m|Morgen|Morgen|morning|n|time
-m|Tag|Tage|day|n
-f|Woche|Wochen|week|n|e
-n|Jahr|Jahre|year|n|!time
-m|Monat|Monate|month|n
-f|Stunde|Stunden|hour|n|e
-f|Minute|Minuten|minute|n|e
-f|Nacht|Nächte|night|n|!time
-f|Zeit|Zeiten|time|n
-f|Natur|-|nature|n|ur
-f|Freiheit|Freiheiten|freedom|a|heit
-f|Gesundheit|-|health|a|heit
-f|Möglichkeit|Möglichkeiten|possibility|a|keit
-f|Schwierigkeit|Schwierigkeiten|difficulty|a|keit
-f|Meinung|Meinungen|opinion|a|ung
-f|Information|Informationen|information|a|ion
-f|Situation|Situationen|situation|a|ion
-f|Qualität|Qualitäten|quality|a|taet
-f|Energie|Energien|energy|a|ie
-f|Politik|-|politics|a|ik
-f|Kultur|Kulturen|culture|a|ur
-f|Reparatur|Reparaturen|repair|a|ur
-f|Liebe|-|love|a|e
-n|Glück|-|luck / happiness|a
-n|Leben|Leben|life|a|inf
-n|Ergebnis|Ergebnisse|result|a|nis
-n|Zentrum|Zentren|centre|a|um
-n|Instrument|Instrumente|instrument|a|ment
-n|Gefühl|Gefühle|feeling|a|ge
-n|Gespräch|Gespräche|conversation|a|ge
-m|Optimismus|-|optimism|a|ismus
-m|Motor|Motoren|engine|a|or
-m|Traum|Träume|dream|a
-f|Idee|Ideen|idea|a
-f|Angst|Ängste|fear|a
-m|Grund|Gründe|reason|a
-n|Ziel|Ziele|goal|a
-f|Regel|Regeln|rule|a
-n|Beispiel|Beispiele|example|a
-m|Unterschied|Unterschiede|difference|a
-f|Geschichte|Geschichten|story / history|a|e
-n|Geld|-|money|a
-m|Preis|Preise|price|a
-n|Eigentum|-|property|a|tum
-m|Reichtum|-|wealth|a|!tum
-m|Kopf|Köpfe|head|b
-n|Auge|Augen|eye|b|!e
-n|Ohr|Ohren|ear|b
-f|Nase|Nasen|nose|b|e
-m|Mund|Münder|mouth|b
-f|Hand|Hände|hand|b
-m|Arm|Arme|arm|b
-n|Bein|Beine|leg|b
-m|Fuß|Füße|foot|b
-m|Rücken|Rücken|back|b
-m|Bauch|Bäuche|belly|b
-m|Zahn|Zähne|tooth|b
-n|Haar|Haare|hair|b
-m|Finger|Finger|finger|b
-n|Knie|Knie|knee|b|!ie
-n|Gesicht|Gesichter|face|b|ge`.split("\n").map(l=>{const [g,de,pl,en,tags,rule]=l.split("|");return {g,de,pl,en,tags,rule:rule||""}});
-
-const GEN={Tisch:"Tisches",Hund:"Hundes",Kind:"Kindes",Auto:"Autos",Computer:"Computers",Lehrer:"Lehrers",Bruder:"Bruders",Vater:"Vaters",Zug:"Zuges",Buch:"Buches",Film:"Films",Problem:"Problems",Projekt:"Projekts",Termin:"Termins",Fehler:"Fehlers",Haus:"Hauses",Büro:"Büros",Hotel:"Hotels",Koffer:"Koffers",Schlüssel:"Schlüssels",Konzert:"Konzerts",Spiel:"Spiels",Mann:"Mannes",Freund:"Freundes",Chef:"Chefs",Garten:"Gartens",Urlaub:"Urlaubs",Bus:"Busses",Fahrrad:"Fahrrads",Geschenk:"Geschenks",Mädchen:"Mädchens",Museum:"Museums",Kino:"Kinos",Vertrag:"Vertrags",Brief:"Briefes"};
-
-const RULES={
-  ung:{g:"f",label:"-ung",tip:"Always feminine."},
-  heit:{g:"f",label:"-heit",tip:"Always feminine."},
-  keit:{g:"f",label:"-keit",tip:"Always feminine."},
-  schaft:{g:"f",label:"-schaft",tip:"Always feminine."},
-  taet:{g:"f",label:"-tät",tip:"Always feminine."},
-  ion:{g:"f",label:"-ion",tip:"Almost always feminine."},
-  ie:{g:"f",label:"-ie",tip:"Almost always feminine (but das Knie)."},
-  ik:{g:"f",label:"-ik",tip:"Almost always feminine."},
-  ei:{g:"f",label:"-ei",tip:"Feminine (but the short word das Ei)."},
-  ur:{g:"f",label:"-ur",tip:"Feminine in loanwords like Natur, Kultur."},
-  in:{g:"f",label:"-in (female person)",tip:"The female form of a person noun is always feminine."},
-  e:{g:"f",label:"-e",tip:"About 9 in 10 nouns ending in -e are feminine. Watch for der Käse, das Auge and male persons like der Junge."},
-  chen:{g:"n",label:"-chen / -lein",tip:"Diminutives are always neuter — even das Mädchen."},
-  ment:{g:"n",label:"-ment",tip:"Almost always neuter."},
-  um:{g:"n",label:"-um",tip:"Latin-style -um nouns are neuter."},
-  tum:{g:"n",label:"-tum",tip:"Mostly neuter (but der Reichtum, der Irrtum)."},
-  nis:{g:"n",label:"-nis",tip:"Mostly neuter (but die Erlaubnis, die Kenntnis)."},
-  o:{g:"n",label:"-o (loanwords)",tip:"Short loanwords in -o are usually neuter."},
-  ge:{g:"n",label:"Ge-",tip:"Nouns starting with Ge- are mostly neuter (but die Geschichte, der Gedanke)."},
-  inf:{g:"n",label:"verb used as a noun",tip:"An infinitive used as a noun is always neuter."},
-  er:{g:"m",label:"-er (doers & devices)",tip:"People and machines that do something are masculine. Not every -er word though: das Fenster, die Mutter."},
-  ling:{g:"m",label:"-ling",tip:"Always masculine."},
-  ismus:{g:"m",label:"-ismus",tip:"Always masculine."},
-  or:{g:"m",label:"-or",tip:"Almost always masculine."},
-  ich:{g:"m",label:"-ig / -ich",tip:"Almost always masculine."},
-  time:{g:"m",label:"days, months, seasons, parts of the day",tip:"Masculine as a group (but die Nacht, die Woche, das Jahr)."},
-  wx:{g:"m",label:"weather & precipitation",tip:"Mostly masculine (but das Wetter, das Gewitter)."},
-  alc:{g:"m",label:"alcoholic drinks",tip:"Masculine as a group — except das Bier."}
+// --- RICH GRAMMATICALLY VERIFIED DATABASE ---
+const db = {
+    subjects: [
+        { id: "ich", de: "Ich", en: "I", pron: "I", isPronoun: true, note: "1st person singular pronoun." },
+        { id: "du",  de: "Du",  en: "You", pron: "you", isPronoun: true, note: "2nd person singular informal pronoun." },
+        { id: "er",  de: "Er",  en: "He", pron: "he", isPronoun: true, note: "3rd person singular masculine pronoun." },
+        { id: "sie", de: "Sie", en: "She", pron: "she", isPronoun: true, note: "3rd person singular feminine pronoun." },
+        { id: "wir", de: "Wir", en: "We", pron: "we", isPronoun: true, note: "1st person plural pronoun." }
+    ],
+    connectors: [
+        { de: "weil", en: "because", note: "Subordinating conjunction: kicks the conjugated verb to the very end of the clause." },
+        { de: "obwohl", en: "although", note: "Concessive conjunction: introduces a contrast and sends the conjugated verb to the end." },
+        { de: "da", en: "since / as", note: "Causal conjunction (often slightly more formal than 'weil'): sends the conjugated verb to the end." },
+        { de: "während", en: "whereas / while", note: "Contrastive conjunction: requires a comma and pushes the conjugated verb to the end." }
+    ],
+    modals: [
+        { 
+            inf: "müssen", 
+            conj: { ich: "muss", du: "musst", er: "muss", sie: "muss", wir: "müssen" },
+            en:   { ich: "have to", du: "have to", er: "has to", sie: "has to", wir: "have to" },
+            tags: ["work", "home", "travel"],
+            note: "Modal verb (necessity): sits in Position 2 and pushes the main action verb to the end as an infinitive."
+        },
+        { 
+            inf: "können", 
+            conj: { ich: "kann", du: "kannst", er: "kann", sie: "kann", wir: "können" },
+            en:   { ich: "can", du: "can", er: "can", sie: "can", wir: "can" },
+            tags: ["work", "social", "home"],
+            note: "Modal verb (ability/possibility): sits in Position 2 and forms a verb bracket (Satzklammer) with the infinitive at the end."
+        },
+        { 
+            inf: "wollen", 
+            conj: { ich: "will", du: "willst", er: "will", sie: "will", wir: "wollen" },
+            en:   { ich: "want to", du: "want to", er: "wants to", sie: "wants to", wir: "want to" },
+            tags: ["social", "travel", "home"],
+            note: "Modal verb (intention): notice the stem vowel change (o → i) in singular forms."
+        },
+        { 
+            inf: "sollen", 
+            conj: { ich: "soll", du: "sollst", er: "soll", sie: "soll", wir: "sollen" },
+            en:   { ich: "should", du: "should", er: "should", sie: "should", wir: "should" },
+            tags: ["work", "home"],
+            note: "Modal verb (obligation/expectation): conjugated in Position 2; infinitive goes to the end."
+        },
+        { 
+            inf: "möchten", 
+            conj: { ich: "möchte", du: "möchtest", er: "möchte", sie: "möchte", wir: "möchten" },
+            en:   { ich: "would like to", du: "would like to", er: "would like to", sie: "would like to", wir: "would like to" },
+            tags: ["social", "travel", "home"],
+            note: "Polite wish form (Subjunctive II of 'mögen'): pairs with an infinitive at the end."
+        }
+    ],
+    verbs: [
+        { inf: "arbeiten", conj: { ich: "arbeite", du: "arbeitest", er: "arbeitet", sie: "arbeitet", wir: "arbeiten" }, en: "work", en3: "works", tags: ["work"], note: "Stem ends in -t, so du/er/sie add an extra -e- before the ending." },
+        { inf: "schreiben", conj: { ich: "schreibe", du: "schreibst", er: "schreibt", sie: "schreibt", wir: "schreiben" }, en: "write", en3: "writes", tags: ["work", "home"], note: "Regular present tense conjugation." },
+        { inf: "telefonieren", conj: { ich: "telefoniere", du: "telefonierst", er: "telefoniert", sie: "telefoniert", wir: "telefonieren" }, en: "make calls", en3: "makes calls", tags: ["work", "social"], note: "Verbs ending in -ieren are always regular." },
+        { inf: "reisen", conj: { ich: "reise", du: "reist", er: "reist", sie: "reist", wir: "reisen" }, en: "travel", en3: "travels", tags: ["travel"], note: "Stem ends in -s, so 'du' takes -t instead of -st." },
+        { inf: "fahren", conj: { ich: "fahre", du: "fährst", er: "fährt", sie: "fährt", wir: "fahren" }, en: "go / drive", en3: "goes / drives", tags: ["travel", "work", "social"], note: "Strong verb: vowel shifts (a → ä) in 2nd & 3rd person singular." },
+        { inf: "fliegen", conj: { ich: "fliege", du: "fliegst", er: "fliegt", sie: "fliegt", wir: "fliegen" }, en: "fly", en3: "flies", tags: ["travel"], note: "Regular present tense conjugation." },
+        { inf: "gehen", conj: { ich: "gehe", du: "gehst", er: "geht", sie: "geht", wir: "gehen" }, en: "go", en3: "goes", tags: ["social", "home"], note: "Standard verb of movement." },
+        { inf: "essen", conj: { ich: "esse", du: "isst", er: "isst", sie: "isst", wir: "essen" }, en: "eat", en3: "eats", tags: ["social", "home"], note: "Stem-changing verb (e → i) in du/er/sie forms." },
+        { inf: "lernen", conj: { ich: "lerne", du: "lernst", er: "lernt", sie: "lernt", wir: "lernen" }, en: "study", en3: "studies", tags: ["work", "home"], note: "Regular verb." },
+        { inf: "lesen", conj: { ich: "lese", du: "liest", er: "liest", sie: "liest", wir: "lesen" }, en: "read", en3: "reads", tags: ["home", "social"], note: "Stem-changing verb (e → ie) in du/er/sie forms." },
+        { inf: "warten", conj: { ich: "warte", du: "wartest", er: "wartet", sie: "wartet", wir: "warten" }, en: "wait", en3: "waits", tags: ["travel", "social"], note: "Stem ends in -t, adding -e- before -st and -t." },
+        { inf: "trainieren", conj: { ich: "trainiere", du: "trainierst", er: "trainiert", sie: "trainiert", wir: "trainieren" }, en: "work out", en3: "works out", tags: ["home", "social"], note: "Regular -ieren verb." },
+        { inf: "bleiben", conj: { ich: "bleibe", du: "bleibst", er: "bleibt", sie: "bleibt", wir: "bleiben" }, en: "stay", en3: "stays", tags: ["home", "work", "social"], note: "Takes a static location (Dative) rather than movement." }
+    ],
+    TE: [
+        { de: "heute", en: "today", tags: ["all"], note: "Temporal adverb: sits early in the middle field (or Position 1 for emphasis)." },
+        { de: "morgen früh", en: "tomorrow morning", tags: ["all"], note: "Temporal phrase: specific point in future time." },
+        { de: "jetzt", en: "now", tags: ["all"], note: "Temporal adverb anchoring the action to the present." },
+        { de: "am Wochenende", en: "on the weekend", tags: ["social", "home", "travel"], note: "Dative contraction: an + dem = am (used for days and weekends)." },
+        { de: "jeden Montag", en: "every Monday", tags: ["work", "home"], note: "Accusative of definite time without a preposition." },
+        { de: "seit zwei Stunden", en: "for two hours", tags: ["work", "travel"], note: "'seit' always triggers Dative plural (-n on Stunden)." },
+        { de: "nach dem Essen", en: "after the meal", tags: ["home", "social"], note: "'nach' is a Dative preposition (das Essen → dem Essen)." },
+        { de: "vor der Arbeit", en: "before work", tags: ["work", "home"], note: "Two-way preposition 'vor' takes Dative for time (die Arbeit → der Arbeit)." },
+        { de: "später", en: "later", tags: ["all"], note: "Comparative temporal adverb." }
+    ],
+    KA: [
+        { de: "wegen der Deadline", en: "because of the deadline", tags: ["work"], note: "'wegen' triggers Genitive case (die Deadline → der Deadline)." },
+        { de: "trotz des Stresses", en: "despite the stress", tags: ["work"], note: "'trotz' triggers Genitive masculine (der Stress → des Stresses)." },
+        { de: "aus Langeweile", en: "out of boredom", tags: ["home", "social"], note: "'aus' + Dative expresses an internal emotional motive." },
+        { de: "wegen des Wetters", en: "because of the weather", tags: ["travel", "social"], note: "'wegen' + Genitive neuter (das Wetter → des Wetters)." },
+        { de: "dank deiner Hilfe", en: "thanks to your help", tags: ["work", "home"], note: "'dank' commonly takes Dative feminine (deine Hilfe → deiner Hilfe)." },
+        { de: "aus reiner Neugier", en: "out of pure curiosity", tags: ["social", "home"], note: "Dative feminine adjective ending (-er) after 'aus'." },
+        { de: "wegen des Staus", en: "due to the traffic jam", tags: ["travel", "work"], note: "'wegen' + Genitive masculine (der Stau → des Staus)." },
+        { de: "zur Entspannung", en: "for relaxation", tags: ["home", "social", "travel"], note: "Dative contraction (zu + der = zur) expressing purpose." }
+    ],
+    MO: [
+        { de: "sehr konzentriert", en: "very focused", tags: ["work", "home"], note: "Adverbial modifier describing how the action is performed." },
+        { de: "ganz schnell", en: "very quickly", tags: ["all"], note: "Modal adverb of speed." },
+        { de: "zu Fuß", en: "on foot", tags: ["travel", "social", "home"], note: "Fixed idiomatic modal expression." },
+        { de: "mit dem Auto", en: "by car", tags: ["travel", "work"], note: "'mit' always requires Dative (das Auto → dem Auto)." },
+        { de: "mit der Bahn", en: "by train", tags: ["travel"], note: "'mit' + Dative feminine (die Bahn → der Bahn)." },
+        { de: "ganz leise", en: "very quietly", tags: ["home", "work"], note: "Modal adverb describing manner." },
+        { de: "gerne", en: "gladly", tags: ["social", "home"], note: "Classic German adverb used to express liking an action." },
+        { de: "alleine", en: "alone", tags: ["home", "travel"], note: "Modal adverb describing accompaniment." }
+    ],
+    LO: [
+        { de: "im Büro", en: "in the office", tags: ["work"], note: "Static location: in + dem = im (Dative)." },
+        { de: "ins Homeoffice", en: "in the home office", tags: ["work", "home"], note: "Contraction of in + das = ins." },
+        { de: "nach Berlin", en: "to Berlin", tags: ["travel"], note: "'nach' is used for destinations (cities/countries without articles)." },
+        { de: "zum Supermarkt", en: "to the supermarket", tags: ["home"], note: "Direction to a masculine place: zu + dem = zum (Dative)." },
+        { de: "in den Park", en: "to the park", tags: ["social", "home"], note: "Movement/direction: two-way preposition 'in' + Accusative (der Park → den Park)." },
+        { de: "im Garten", en: "in the garden", tags: ["home", "social"], note: "Static location: in + dem = im (Dative)." },
+        { de: "ans Meer", en: "to the sea", tags: ["travel"], note: "Direction: an + das = ans (Accusative)." },
+        { de: "in der Bibliothek", en: "in the library", tags: ["work", "social"], note: "Static location: 'in' + Dative feminine (die Bibliothek → der Bibliothek)." }
+    ]
 };
 
-/* ================= SENTENCE DATA ================= */
-const SUBJ=[
-  {de:"ich",en:"I",i:0,note:"1st person singular pronoun."},
-  {de:"du",en:"you",i:1,note:"2nd person singular, informal."},
-  {de:"er",en:"he",i:2,s3:1,note:"3rd person singular, masculine."},
-  {de:"sie",en:"she",i:2,s3:1,note:"3rd person singular, feminine. Same word as 'they' — only the verb ending tells you which."},
-  {de:"wir",en:"we",i:3,note:"1st person plural: verb looks like the infinitive."},
-  {de:"ihr",en:"you all",i:4,note:"2nd person plural, informal: verb ends in -t."},
-  {de:"sie",en:"they",i:5,note:"3rd person plural. Same word as 'she' — here the verb looks like the infinitive, so it means 'they'."}
-];
-const six=s=>s.split(" ");
-const HABEN={inf:"haben",f:six("habe hast hat haben habt haben")};
-const SEIN={inf:"sein",f:six("bin bist ist sind seid sind")};
-const WERDEN={inf:"werden",f:six("werde wirst wird werden werdet werden")};
-const MODALS=[
-  {inf:"müssen",f:six("muss musst muss müssen müsst müssen"),en:["have to","has to"],g:"w h t",note:"<b>müssen</b> (necessity)."},
-  {inf:"können",f:six("kann kannst kann können könnt können"),en:["can","can"],g:"w s h",note:"<b>können</b> (ability / possibility)."},
-  {inf:"wollen",f:six("will willst will wollen wollt wollen"),en:["want to","wants to"],g:"s t h",note:"<b>wollen</b> (intention). Careful: 'ich will' means 'I want', not 'I will'."},
-  {inf:"sollen",f:six("soll sollst soll sollen sollt sollen"),en:["should","should"],g:"w h",note:"<b>sollen</b> (someone else expects it)."},
-  {inf:"möchten",f:six("möchte möchtest möchte möchten möchtet möchten"),en:["would like to","would like to"],g:"s t h",note:"<b>möchten</b> (polite wish; a form of mögen)."},
-  {inf:"dürfen",f:six("darf darfst darf dürfen dürft dürfen"),en:["may","may"],g:"w h s",note:"<b>dürfen</b> (permission)."}
-];
-function V(inf,f4,pp,aux,en,lo,g,note,x={}){
-  const sep=x.sep||"",stem=inf.slice(sep.length),[a,b,c,d]=f4.split(" "),[e1,e3,ep]=en.split("|");
-  return {inf,sep,f:[a,b,c,stem,d,stem],pp,aux,en:e1,en3:e3,enp:ep,lo,g,note,mo:x.mo||""};
-}
-const VERBS=[
-V("arbeiten","arbeite arbeitest arbeitet arbeitet","gearbeitet","h","work|works|worked","loc","w h","Stem ends in -t, so du / er / ihr slip in an extra -e- (arbeitest, arbeitet)."),
-V("schreiben","schreibe schreibst schreibt schreibt","geschrieben","h","write|writes|wrote","loc","w h","Regular in the present; strong Partizip II (ei → ie)."),
-V("telefonieren","telefoniere telefonierst telefoniert telefoniert","telefoniert","h","talk on the phone|talks on the phone|talked on the phone","loc","w s h","-ieren verbs are always regular and take no ge- in the Partizip II."),
-V("reisen","reise reist reist reist","gereist","s","travel|travels|travelled","far","t","Stem ends in -s, so du only adds -t. Change of place → Perfekt with sein.",{mo:"veh"}),
-V("fahren","fahre fährst fährt fahrt","gefahren","s","go|goes|went","dirall","t w s","Strong verb: a → ä for du and er/sie/es. Movement → Perfekt with sein.",{mo:"veh"}),
-V("fliegen","fliege fliegst fliegt fliegt","geflogen","s","fly|flies|flew","far","t","Movement → Perfekt with sein; strong Partizip II (ie → o)."),
-V("gehen","gehe gehst geht geht","gegangen","s","go|goes|went","near","s h w","Movement → Perfekt with sein; irregular Partizip II gegangen.",{mo:"foot"}),
-V("laufen","laufe läufst läuft lauft","gelaufen","s","run|runs|ran","near","s h","Strong verb: au → äu for du and er/sie/es. Perfekt with sein."),
-V("kommen","komme kommst kommt kommt","gekommen","s","come|comes|came","dirall","s h w t","Movement toward a goal → Perfekt with sein.",{mo:"veh foot"}),
-V("bleiben","bleibe bleibst bleibt bleibt","geblieben","s","stay|stays|stayed","loc","h w s t","No movement at all, yet the Perfekt uses sein — bleiben, sein and werden are the classic exceptions."),
-V("essen","esse isst isst esst","gegessen","h","eat|eats|ate","loc","s h","Stem change e → i for du and er/sie/es."),
-V("lernen","lerne lernst lernt lernt","gelernt","h","study|studies|studied","loc","w h","Fully regular (weak) verb."),
-V("lesen","lese liest liest lest","gelesen","h","read|reads|read","loc","h s","Stem change e → ie for du and er/sie/es."),
-V("warten","warte wartest wartet wartet","gewartet","h","wait|waits|waited","loc","t s","Stem ends in -t → extra -e- before -st and -t."),
-V("trainieren","trainiere trainierst trainiert trainiert","trainiert","h","work out|works out|worked out","loc","h s","Regular -ieren verb; Partizip II without ge-."),
-V("kochen","koche kochst kocht kocht","gekocht","h","cook|cooks|cooked","loc","h s","Fully regular (weak) verb."),
-V("schlafen","schlafe schläfst schläft schlaft","geschlafen","h","sleep|sleeps|slept","loc","h t","Strong verb: a → ä for du and er/sie/es. A state, not a change of place → haben."),
-V("spielen","spiele spielst spielt spielt","gespielt","h","play|plays|played","loc","s h","Fully regular (weak) verb."),
-V("tanzen","tanze tanzt tanzt tanzt","getanzt","h","dance|dances|danced","loc","s","Stem ends in -z, so du only adds -t."),
-V("singen","singe singst singt singt","gesungen","h","sing|sings|sang","loc","s h","Regular in the present; strong Partizip II (i → u)."),
-V("frühstücken","frühstücke frühstückst frühstückt frühstückt","gefrühstückt","h","have breakfast|has breakfast|had breakfast","loc","h t","Looks separable but is not: früh- stays attached."),
-V("einkaufen","kaufe kaufst kauft kauft","eingekauft","h","shop|shops|shopped","loc","h s","Regular verb with the prefix ein-.",{sep:"ein"}),
-V("aufräumen","räume räumst räumt räumt","aufgeräumt","h","tidy up|tidies up|tidied up","loc","h w","Regular verb with the prefix auf-.",{sep:"auf"}),
-V("fernsehen","sehe siehst sieht seht","ferngesehen","h","watch TV|watches TV|watched TV","loc","h","Stem change e → ie for du and er/sie/es.",{sep:"fern"}),
-V("ankommen","komme kommst kommt kommt","angekommen","s","arrive|arrives|arrived","loc","t w","Arriving is a change of place → sein. The place of arrival answers Wo? → Dative.",{sep:"an"}),
-V("aufstehen","stehe stehst steht steht","aufgestanden","s","get up|gets up|got up","none","h","Change of state → Perfekt with sein.",{sep:"auf"}),
-V("anrufen","rufe rufst ruft ruft","angerufen","h","call|calls|called","none","w s h","Strong Partizip II: angerufen.",{sep:"an"}),
-V("ausgehen","gehe gehst geht geht","ausgegangen","s","go out|goes out|went out","none","s","Movement → Perfekt with sein.",{sep:"aus"}),
-V("mitkommen","komme kommst kommt kommt","mitgekommen","s","come along|comes along|came along","dirall","s t","Movement → Perfekt with sein.",{sep:"mit"}),
-V("weiterarbeiten","arbeite arbeitest arbeitet arbeitet","weitergearbeitet","h","keep working|keeps working|kept working","loc","w","weiter- adds the idea of 'carrying on'.",{sep:"weiter"}),
-V("zurückkommen","komme kommst kommt kommt","zurückgekommen","s","come back|comes back|came back","none","t w h","Movement → Perfekt with sein.",{sep:"zurück"}),
-V("umziehen","ziehe ziehst zieht zieht","umgezogen","s","move|moves|moved","far","h t","Moving house is a change of place → sein.",{sep:"um"}),
-V("ausschlafen","schlafe schläfst schläft schlaft","ausgeschlafen","h","sleep in|sleeps in|slept in","none","h","Strong verb: a → ä for du and er/sie/es.",{sep:"aus"})
-];
-const DVERBS=[
-V("geben","gebe gibst gibt gebt","gegeben","h","give|gives|gave","none","","Stem change e → i for du and er/sie/es."),
-V("zeigen","zeige zeigst zeigt zeigt","gezeigt","h","show|shows|showed","none","","Fully regular (weak) verb."),
-V("schenken","schenke schenkst schenkt schenkt","geschenkt","h","give|gives|gave","none","","schenken = to give as a present."),
-V("bringen","bringe bringst bringt bringt","gebracht","h","bring|brings|brought","none","","Irregular Partizip II: gebracht."),
-V("leihen","leihe leihst leiht leiht","geliehen","h","lend|lends|lent","none","","Strong Partizip II (ei → ie)."),
-V("kaufen","kaufe kaufst kauft kauft","gekauft","h","buy|buys|bought","none","","Fully regular (weak) verb."),
-V("schicken","schicke schickst schickt schickt","geschickt","h","send|sends|sent","none","","Fully regular (weak) verb.")
-];
-/* t: a = any tense, f = present/future only, p = past only */
-const TE=[
-{de:"heute",en:"today",g:"*",t:"a",note:"Time adverb: first slot of the middle field, or Position 1 for emphasis."},
-{de:"morgen früh",en:"tomorrow morning",g:"*",t:"f",note:"Time phrase pointing to the future — German happily uses the present tense with it."},
-{de:"jetzt",en:"now",g:"*",t:"f",note:"Time adverb anchoring the action in the present."},
-{de:"später",en:"later",g:"*",t:"f",note:"Time adverb (comparative of spät)."},
-{de:"bald",en:"soon",g:"*",t:"f",note:"Time adverb."},
-{de:"heute Abend",en:"this evening",g:"*",t:"f",note:"Two time words combined; no preposition needed."},
-{de:"nächste Woche",en:"next week",g:"*",t:"f",n:"die Woche",k:"A",note:"Time expressions without a preposition stand in the Accusative."},
-{de:"in einer Stunde",en:"in an hour",g:"*",t:"f",n:"die Stunde",k:"D",note:"'in' + Dative for a point in future time."},
-{de:"gestern",en:"yesterday",g:"*",t:"p",note:"Time adverb for the past."},
-{de:"gestern Abend",en:"last night",g:"*",t:"p",note:"Two time words combined; no preposition needed."},
-{de:"vorhin",en:"a little while ago",g:"*",t:"p",note:"Time adverb for the recent past."},
-{de:"letzte Woche",en:"last week",g:"*",t:"p",n:"die Woche",k:"A",note:"Time expressions without a preposition stand in the Accusative."},
-{de:"letztes Jahr",en:"last year",g:"*",t:"p",n:"das Jahr",k:"A",note:"Accusative of time; the adjective ending -es shows neuter."},
-{de:"vor einer Stunde",en:"an hour ago",g:"*",t:"p",n:"die Stunde",k:"D",note:"'vor' + Dative = 'ago'."},
-{de:"am Wochenende",en:"on the weekend",g:"s h t",t:"a",n:"das Wochenende",k:"D",note:"an + dem = am, used for days and parts of the day."},
-{de:"am Montag",en:"on Monday",g:"*",t:"a",n:"der Montag",k:"D",note:"an + dem = am, used for days."},
-{de:"am Abend",en:"in the evening",g:"*",t:"a",n:"der Abend",k:"D",note:"an + dem = am, used for parts of the day."},
-{de:"in der Nacht",en:"at night",g:"*",t:"a",n:"die Nacht",k:"D",note:"die Nacht is the odd one out: in der Nacht, not 'am'."},
-{de:"jeden Montag",en:"every Monday",g:"w h",t:"a",n:"der Montag",k:"A",note:"Accusative of time: jeder → jeden."},
-{de:"den ganzen Tag",en:"all day",g:"*",t:"a",n:"der Tag",k:"A",note:"Duration in the Accusative: der → den, plus -en on the adjective."},
-{de:"nach dem Essen",en:"after the meal",g:"h s",t:"a",n:"das Essen",k:"D",note:"'nach' always takes the Dative."},
-{de:"vor der Arbeit",en:"before work",g:"w h",t:"a",n:"die Arbeit",k:"D",note:"'vor' in a time sense takes the Dative."},
-{de:"nach der Arbeit",en:"after work",g:"w h s",t:"a",n:"die Arbeit",k:"D",note:"'nach' always takes the Dative."},
-{de:"im Sommer",en:"in the summer",g:"t s h",t:"a",n:"der Sommer",k:"D",note:"in + dem = im, used for seasons and months."},
-{de:"morgens",en:"in the mornings",g:"*",t:"a",note:"The -s ending turns a time noun into 'habitually at that time'."},
-{de:"oft",en:"often",g:"*",t:"a",note:"Frequency adverb; sits in the time slot."},
-{de:"manchmal",en:"sometimes",g:"*",t:"a",note:"Frequency adverb; sits in the time slot."}
-];
-const KA=[
-{de:"wegen der Deadline",en:"because of the deadline",g:"w",n:"die Deadline",k:"G",note:"'wegen' takes the Genitive."},
-{de:"trotz des Stresses",en:"despite the stress",g:"w",n:"der Stress",k:"G",note:"'trotz' takes the Genitive; masculine nouns add -(e)s."},
-{de:"aus Langeweile",en:"out of boredom",g:"h s",n:"die Langeweile",k:"D",note:"'aus' + Dative for an inner motive; no article needed."},
-{de:"wegen des Wetters",en:"because of the weather",g:"t s",n:"das Wetter",k:"G",note:"'wegen' + Genitive; neuter nouns add -s."},
-{de:"dank deiner Hilfe",en:"thanks to your help",g:"w h",n:"die Hilfe",k:"D",note:"'dank' is commonly used with the Dative."},
-{de:"aus reiner Neugier",en:"out of pure curiosity",g:"s h",n:"die Neugier",k:"D",note:"'aus' + Dative; the adjective ending -er signals Dative feminine."},
-{de:"wegen des Staus",en:"because of the traffic jam",g:"t w",n:"der Stau",k:"G",note:"'wegen' + Genitive masculine."},
-{de:"zur Entspannung",en:"to relax",g:"h s t",n:"die Entspannung",k:"D",note:"zu + der = zur, expressing purpose."},
-{de:"trotz des Regens",en:"despite the rain",g:"t s h",n:"der Regen",k:"G",note:"'trotz' + Genitive masculine."},
-{de:"wegen der Hitze",en:"because of the heat",g:"*",n:"die Hitze",k:"G",note:"'wegen' + Genitive feminine (die → der)."},
-{de:"aus Gewohnheit",en:"out of habit",g:"*",n:"die Gewohnheit",k:"D",note:"'aus' + Dative for an inner motive."},
-{de:"wegen einer Erkältung",en:"because of a cold",g:"h w",n:"die Erkältung",k:"G",note:"'wegen' + Genitive feminine (eine → einer)."},
-{de:"trotz der Müdigkeit",en:"despite the tiredness",g:"w h",n:"die Müdigkeit",k:"G",note:"'trotz' + Genitive feminine."},
-{de:"aus Spaß",en:"for fun",g:"s h",n:"der Spaß",k:"D",note:"'aus' + Dative for an inner motive."},
-{de:"wegen des Termins",en:"because of the appointment",g:"w",n:"der Termin",k:"G",note:"'wegen' + Genitive masculine."},
-{de:"wegen der Prüfung",en:"because of the exam",g:"w h",n:"die Prüfung",k:"G",note:"'wegen' + Genitive feminine."},
-{de:"wegen des Streiks",en:"because of the strike",g:"t w",n:"der Streik",k:"G",note:"'wegen' + Genitive masculine."},
-{de:"trotz der Kälte",en:"despite the cold",g:"t s",n:"die Kälte",k:"G",note:"'trotz' + Genitive feminine."}
-];
-/* f: only with verbs that allow it (veh = vehicle, foot) */
-const MO=[
-{de:"sehr konzentriert",en:"with great focus",g:"w h",note:"Manner: how the action is done."},
-{de:"ganz schnell",en:"very quickly",g:"*",note:"Manner adverb of speed."},
-{de:"zu Fuß",en:"on foot",g:"*",f:"foot",note:"Fixed expression for how you get somewhere."},
-{de:"mit dem Auto",en:"by car",g:"t w",f:"veh",n:"das Auto",k:"D",note:"'mit' always takes the Dative."},
-{de:"mit der Bahn",en:"by train",g:"t",f:"veh",n:"die Bahn",k:"D",note:"'mit' always takes the Dative."},
-{de:"mit dem Fahrrad",en:"by bike",g:"*",f:"veh",n:"das Fahrrad",k:"D",note:"'mit' always takes the Dative."},
-{de:"mit dem Bus",en:"by bus",g:"*",f:"veh",n:"der Bus",k:"D",note:"'mit' always takes the Dative."},
-{de:"ganz leise",en:"very quietly",g:"h w",note:"Manner adverb."},
-{de:"gerne",en:"gladly",g:"*",note:"The German way to say you like doing something."},
-{de:"ungern",en:"reluctantly",g:"*",note:"Opposite of gerne."},
-{de:"alleine",en:"alone",g:"*",note:"Manner: with whom (nobody)."},
-{de:"heimlich",en:"secretly",g:"*",note:"Manner adverb."},
-{de:"gemütlich",en:"at a relaxed pace",g:"h s",note:"Manner adverb; a very German word for cosy and unhurried."},
-{de:"ziemlich müde",en:"rather tired",g:"*",note:"Describes the state in which the action happens."},
-{de:"mit Freunden",en:"with friends",g:"s h t",n:"die Freunde",pl:1,k:"D",note:"'mit' + Dative plural: plural nouns add -n."},
-{de:"mit Kopfhörern",en:"with headphones",g:"w h t",n:"die Kopfhörer",pl:1,k:"D",note:"'mit' + Dative plural: Kopfhörer → Kopfhörern."},
-{de:"mit meiner Schwester",en:"with my sister",g:"s h t",n:"die Schwester",k:"D",note:"'mit' + Dative feminine: meine → meiner."},
-{de:"mit meinem Bruder",en:"with my brother",g:"s h t",n:"der Bruder",k:"D",note:"'mit' + Dative masculine: mein → meinem."},
-{de:"in Ruhe",en:"in peace",g:"*",n:"die Ruhe",k:"D",note:"Fixed expression: without being disturbed."},
-{de:"ohne Pause",en:"without a break",g:"w h",n:"die Pause",k:"A",note:"'ohne' always takes the Accusative."},
-{de:"mit Freude",en:"with joy",g:"*",n:"die Freude",k:"D",note:"'mit' always takes the Dative."}
-];
-/* t: loc = static (Wo?), near / far = direction (Wohin?) */
-const LO=[
-{de:"im Büro",en:"in the office",g:"w",t:"loc",n:"das Büro",k:"D",note:"Location (Wo?): in + dem = im, Dative."},
-{de:"im Homeoffice",en:"in the home office",g:"w h",t:"loc",n:"das Homeoffice",k:"D",note:"Location (Wo?): in + dem = im, Dative."},
-{de:"zu Hause",en:"at home",g:"*",t:"loc",note:"Fixed expression for location: zu Hause = at home (nach Hause = heading home)."},
-{de:"im Garten",en:"in the garden",g:"h s",t:"loc",n:"der Garten",k:"D",note:"Location (Wo?): in + dem = im, Dative."},
-{de:"in der Bibliothek",en:"in the library",g:"w s",t:"loc",n:"die Bibliothek",k:"D",note:"Location (Wo?): 'in' + Dative feminine (die → der)."},
-{de:"in der Küche",en:"in the kitchen",g:"h",t:"loc",n:"die Küche",k:"D",note:"Location (Wo?): 'in' + Dative feminine."},
-{de:"im Park",en:"in the park",g:"s h",t:"loc",n:"der Park",k:"D",note:"Location (Wo?): in + dem = im, Dative."},
-{de:"im Café",en:"in the café",g:"s w",t:"loc",n:"das Café",k:"D",note:"Location (Wo?): in + dem = im, Dative."},
-{de:"am Bahnhof",en:"at the train station",g:"t",t:"loc",n:"der Bahnhof",k:"D",note:"Location (Wo?): an + dem = am, Dative."},
-{de:"am Flughafen",en:"at the airport",g:"t",t:"loc",n:"der Flughafen",k:"D",note:"Location (Wo?): an + dem = am, Dative."},
-{de:"im Hotel",en:"in the hotel",g:"t",t:"loc",n:"das Hotel",k:"D",note:"Location (Wo?): in + dem = im, Dative."},
-{de:"im Zug",en:"on the train",g:"t w",t:"loc",n:"der Zug",k:"D",note:"Location (Wo?): German sits 'in' the train: im Zug."},
-{de:"bei Freunden",en:"at friends' place",g:"s",t:"loc",n:"die Freunde",pl:1,k:"D",note:"'bei' + Dative for being at someone's place."},
-{de:"in der Stadt",en:"in the city",g:"s t",t:"loc",n:"die Stadt",k:"D",note:"Location (Wo?): 'in' + Dative feminine."},
-{de:"auf dem Balkon",en:"on the balcony",g:"h",t:"loc",n:"der Balkon",k:"D",note:"Location (Wo?): 'auf' + Dative."},
-{de:"am Strand",en:"on the beach",g:"t s",t:"loc",n:"der Strand",k:"D",note:"Location (Wo?): an + dem = am, Dative."},
-{de:"im Wohnzimmer",en:"in the living room",g:"h",t:"loc",n:"das Wohnzimmer",k:"D",note:"Location (Wo?): in + dem = im, Dative."},
-{de:"in der Schule",en:"at school",g:"w",t:"loc",n:"die Schule",k:"D",note:"Location (Wo?): 'in' + Dative feminine."},
-{de:"auf der Arbeit",en:"at work",g:"w",t:"loc",n:"die Arbeit",k:"D",note:"Fixed expression: auf der Arbeit (Dative)."},
-{de:"zum Supermarkt",en:"to the supermarket",g:"h",t:"near",n:"der Supermarkt",k:"D",note:"Direction: zu + dem = zum. 'zu' always takes the Dative, even for movement."},
-{de:"in den Park",en:"to the park",g:"s h",t:"near",n:"der Park",k:"A",note:"Direction (Wohin?): 'in' + Accusative (der → den)."},
-{de:"nach Hause",en:"home",g:"*",t:"near",note:"Fixed expression for direction: nach Hause = heading home."},
-{de:"ins Büro",en:"to the office",g:"w",t:"near",n:"das Büro",k:"A",note:"Direction (Wohin?): in + das = ins, Accusative."},
-{de:"zur Arbeit",en:"to work",g:"w",t:"near",n:"die Arbeit",k:"D",note:"Direction: zu + der = zur (Dative)."},
-{de:"in die Stadt",en:"into the city",g:"s t",t:"near",n:"die Stadt",k:"A",note:"Direction (Wohin?): 'in' + Accusative feminine."},
-{de:"zum Bahnhof",en:"to the train station",g:"t",t:"near",n:"der Bahnhof",k:"D",note:"Direction: zu + dem = zum (Dative)."},
-{de:"ins Kino",en:"to the cinema",g:"s",t:"near",n:"das Kino",k:"A",note:"Direction (Wohin?): in + das = ins, Accusative."},
-{de:"in die Bibliothek",en:"to the library",g:"w s",t:"near",n:"die Bibliothek",k:"A",note:"Direction (Wohin?): 'in' + Accusative feminine."},
-{de:"zum Arzt",en:"to the doctor",g:"h",t:"near",n:"der Arzt",k:"D",note:"Going to a person is always 'zu' + Dative."},
-{de:"ins Café",en:"to the café",g:"s",t:"near",n:"das Café",k:"A",note:"Direction (Wohin?): in + das = ins, Accusative."},
-{de:"zur Schule",en:"to school",g:"w",t:"near",n:"die Schule",k:"D",note:"Direction: zu + der = zur (Dative)."},
-{de:"zu Freunden",en:"to friends' place",g:"s",t:"near",n:"die Freunde",pl:1,k:"D",note:"Going to people is 'zu' + Dative."},
-{de:"in den Garten",en:"into the garden",g:"h",t:"near",n:"der Garten",k:"A",note:"Direction (Wohin?): 'in' + Accusative (der → den)."},
-{de:"nach Berlin",en:"to Berlin",g:"*",t:"far",note:"'nach' for cities and countries without an article."},
-{de:"nach Hamburg",en:"to Hamburg",g:"*",t:"far",note:"'nach' for cities and countries without an article."},
-{de:"nach Spanien",en:"to Spain",g:"*",t:"far",note:"'nach' for cities and countries without an article."},
-{de:"nach Österreich",en:"to Austria",g:"*",t:"far",note:"'nach' for cities and countries without an article."},
-{de:"in die Schweiz",en:"to Switzerland",g:"*",t:"far",n:"die Schweiz",k:"A",note:"Countries with an article take 'in' + Accusative instead of 'nach'."},
-{de:"ans Meer",en:"to the sea",g:"*",t:"far",n:"das Meer",k:"A",note:"Direction: an + das = ans, Accusative."},
-{de:"in die Berge",en:"to the mountains",g:"*",t:"far",n:"die Berge",pl:1,k:"A",note:"Direction: 'in' + Accusative plural."},
-{de:"aufs Land",en:"to the countryside",g:"*",t:"far",n:"das Land",k:"A",note:"Direction: auf + das = aufs, Accusative."}
-];
-const SUBC=[
-{de:"weil",en:"because"},{de:"obwohl",en:"although"},{de:"da",en:"since"},{de:"während",en:"while"},
-{de:"wenn",en:"when"},{de:"bevor",en:"before"},{de:"falls",en:"in case"},{de:"sobald",en:"as soon as"},{de:"solange",en:"as long as"}
-];
-const COORD=[{de:"aber",en:"but",comma:1},{de:"denn",en:"because",comma:1},{de:"und",en:"and",comma:0}];
-const ADVC=[{de:"deshalb",en:"that's why"},{de:"trotzdem",en:"nevertheless"},{de:"danach",en:"afterwards"},{de:"außerdem",en:"besides,"}];
-const PERSONS=NOUNS.filter(n=>n.tags.includes("P")), THINGS=NOUNS.filter(n=>n.tags.includes("G"));
+// --- APP STATE ---
+let currentMode = "instant";
+let currentParts = [];
+let currentEnglish = "";
+let currentStructureName = "";
+let puzzleBank = [];
+let puzzleUser = [];
+let streak = parseInt(localStorage.getItem("tekamolo_streak") || "0");
+let savedSentences = JSON.parse(localStorage.getItem("tekamolo_saved") || "[]");
+let selectedTileText = "";
 
-/* ================= SENTENCE GENERATOR ================= */
-function choose(list,ctx,pred,not){
-  const a=list.filter(x=>(!pred||pred(x))&&x!==not);
-  if(!a.length) return null;
-  const b=ctx==="all"?a:a.filter(x=>!x.g||x.g==="*"||x.g.includes(ctx));
-  return pick(b.length?b:a);
-}
-const loOK=v=>l=>v.lo==="loc"?l.t==="loc":v.lo==="near"?l.t==="near":v.lo==="dirall"?l.t!=="loc":l.t==="far";
-function ing(ctx,vpred,notV){
-  const v=choose(VERBS,ctx,vpred,notV),s=pick(SUBJ);
-  return {v,s,te:null,ka:choose(KA,ctx),mo:choose(MO,ctx,m=>!m.f||v.mo.includes(m.f)),lo:v.lo==="none"?null:choose(LO,ctx,loOK(v))};
-}
-const teFor=(ctx,t)=>choose(TE,ctx,x=>x.t==="a"||x.t===t);
-const vInfo=v=>`<b>${v.inf}</b>: ${v.note}`+(v.sep?` Separable verb: the prefix <b>${v.sep}-</b> splits off to the end of a main clause, but stays attached in a Nebensatz, in the infinitive and in the Partizip II.`:"");
-const ph=(x,role)=>x?{de:x.de,en:x.en,role,note:x.note,n:x.n,k:x.k,pl:x.pl}:null;
-const mid=o=>[ph(o.te,"TE"),ph(o.ka,"KA"),ph(o.mo,"MO"),ph(o.lo,"LO")].filter(Boolean);
-const tail=o=>[o.mo,o.lo,o.te,o.ka].filter(Boolean).map(x=>x.en).join(" ");
-const ven=o=>o.s.s3?o.v.en3:o.v.en;
-const pSubj=(s,extra)=>({de:s.de,en:s.en,role:"Subj",note:(extra?extra+" ":"")+s.note});
-const pFin=(o,note)=>({de:o.v.f[o.s.i],en:ven(o),role:"Verb",note:note+" "+vInfo(o.v),verb:o.v,si:o.s.i});
-const pPre=v=>v.sep?[{de:v.sep,en:`(prefix of ${v.inf})`,role:"Prefix",note:`Separable prefix of <b>${v.inf}</b>. In a main clause it travels to the very end and closes the verb bracket.`,verb:v}]:[];
-const COMMA={de:",",en:"(clause boundary)",role:"Comma",note:"German always puts a comma between a main clause and a subordinate clause."};
-const clean=s=>s.replace(/\s+/g," ").replace(/ ([.,?])/g,"$1");
-const SLOT={te:["TE","time"],ka:["KA","reason"],mo:["MO","manner"],lo:["LO","place"]};
+// --- INITIALIZATION ---
+document.getElementById("streakDisplay").innerText = `🔥 Streak: ${streak}`;
+renderSavedList();
+runGenerator();
 
-function genStandard(ctx,sepOnly){
-  const o=ing(ctx,sepOnly?v=>v.sep:null); o.te=teFor(ctx,"f");
-  return {name:o.v.sep?"✂️ Separable verb (prefix at the end)":"📐 Standard (S – V – TE KA MO LO)",end:".",
-    parts:[pSubj(o.s),pFin(o,"Conjugated verb in Position 2."),...mid(o),...pPre(o.v)],
-    en:`${o.s.en} ${ven(o)} ${tail(o)}.`};
-}
-function genInverted(ctx){
-  const o=ing(ctx); o.te=teFor(ctx,"f");
-  const k=pick(["te","te","ka","lo"].filter(x=>o[x])),front=o[k],rest={...o,[k]:null};
-  return {name:`🔄 Inversion (${SLOT[k][0]} in Position 1)`,end:".",
-    parts:[{...ph(front,SLOT[k][0]),note:`Moved to Position 1 for emphasis. The verb refuses to leave Position 2, so the subject slides behind it. ${front.note}`},
-      pFin(o,"Still in Position 2 — the V2 rule never bends."),pSubj(o.s,"Pushed to Position 3, right after the verb."),...mid(rest),...pPre(o.v)],
-    en:`${cap(front.en)}, ${o.s.en} ${ven(o)} ${tail(rest)}.`};
-}
-function genBracket(ctx){
-  const type=pick(["modal","modal","perfekt","perfekt","futur","sep"]);
-  if(type==="sep") return genStandard(ctx,true);
-  const o=ing(ctx),s=o.s,v=o.v;
-  if(type==="perfekt"){
-    o.te=teFor(ctx,"p"); const aux=v.aux==="s"?SEIN:HABEN;
-    return {name:"⏪ Perfekt (haben / sein … Partizip II)",end:".",
-      parts:[pSubj(s),{de:aux.f[s.i],en:"(past-tense helper)",role:"Aux",verb:aux,si:s.i,
-        note:`Perfekt = <b>${aux.inf}</b> in Position 2 + Partizip II at the end. `+(v.aux==="s"?`<b>${v.inf}</b> takes <b>sein</b> (change of place or state — or one of the exceptions like bleiben).`:`<b>${v.inf}</b> takes <b>haben</b>, like most verbs.`)},
-        ...mid(o),{de:v.pp,en:v.enp,role:"PP",verb:v,note:`Partizip II closes the bracket at the very end. ${vInfo(v)}`}],
-      en:`${s.en} ${v.enp} ${tail(o)}.`};
-  }
-  o.te=teFor(ctx,"f");
-  const inf={de:v.inf,en:v.en,role:"Inf",verb:v,note:`Infinitive at the very end, closing the verb bracket. ${vInfo(v)}`};
-  if(type==="futur")
-    return {name:"⏩ Futur I (werden … infinitive)",end:".",
-      parts:[pSubj(s),{de:WERDEN.f[s.i],en:"will",role:"Aux",verb:WERDEN,si:s.i,note:"Futur I = <b>werden</b> in Position 2 + infinitive at the end. Note the irregular du wirst / er wird."},...mid(o),inf],
-      en:`${s.en} will ${v.en} ${tail(o)}.`};
-  const m=choose(MODALS,ctx),men=m.en[s.s3?1:0];
-  return {name:"🧲 Modal bracket (Satzklammer)",end:".",
-    parts:[pSubj(s),{de:m.f[s.i],en:men,role:"Modal",verb:m,si:s.i,note:`Modal verb ${m.note} It takes Position 2 and sends the main verb to the end as an infinitive. Modal verbs have no ending for ich and er/sie/es.`},...mid(o),inf],
-    en:`${s.en} ${men} ${v.en} ${tail(o)}.`};
-}
-function genQuestion(ctx){
-  const o=ing(ctx); o.s=pick(SUBJ.slice(1)); o.te=teFor(ctx,"f"); if(Math.random()<.5) o.ka=null;
-  const doo=o.s.s3?"does":"do";
-  if(Math.random()<.4)
-    return {name:"❓ Yes/no question (verb first)",end:"?",
-      parts:[pFin(o,"Yes/no question: the conjugated verb jumps to Position 1."),pSubj(o.s,"Directly after the verb."),...mid(o),...pPre(o.v)],
-      en:`${cap(doo)} ${o.s.en} ${o.v.en} ${tail(o)}?`};
-  const k=pick(["te","ka","mo","lo"].filter(x=>o[x])),rest={...o,[k]:null};
-  const W=k==="te"?["wann","when"]:k==="ka"?["warum","why"]:k==="mo"?["wie","how"]:o.lo.t==="loc"?["wo","where"]:["wohin","where (to)"];
-  return {name:`❓ W-question (${cap(W[0])}?)`,end:"?",
-    parts:[{de:W[0],en:W[1],role:"W",note:`W-word in Position 1. It asks for the <b>${SLOT[k][0]}</b> (${SLOT[k][1]}) slot — so that slot is empty in the question and the answer would fill it.`},
-      pFin(o,"Even in a W-question the verb holds Position 2."),pSubj(o.s,"Position 3, right after the verb."),...mid(rest),...pPre(o.v)],
-    en:`${cap(W[1])} ${doo} ${o.s.en} ${o.v.en} ${tail(rest)}?`};
-}
-function genClause(ctx){
-  const a=ing(ctx); a.te=teFor(ctx,"f"); a.ka=null; a.mo=null;
-  const b=ing(ctx,null,a.v); b.ka=null;
-  const type=pick(["sub","sub","subfirst","coord","adv"]);
-  const A=clean(`${a.s.en} ${ven(a)} ${tail(a)}`),B=clean(`${b.s.en} ${ven(b)} ${tail(b)}`);
-  const mainA=[pSubj(a.s),pFin(a,"Position 2 in the main clause."),...mid(a),...pPre(a.v)];
-  if(type==="coord"){
-    const c=pick(COORD);
-    return {name:`➕ Position-0 connector (${c.de})`,end:".",
-      parts:[...mainA,...(c.comma?[COMMA]:[]),{de:c.de,en:c.en,role:"Conn",note:`Coordinating conjunction: <b>${c.de}</b> sits in "Position 0" and changes nothing — normal S-V order follows. (und, aber, oder, denn, sondern all behave this way.)`},
-        pSubj(b.s),pFin(b,"Position 2 as usual — the connector does not count."),...mid(b),...pPre(b.v)],
-      en:`${cap(A)}${c.comma?",":""} ${c.en} ${B}.`};
-  }
-  if(type==="adv"){
-    const c=pick(ADVC);
-    return {name:`↪️ Adverb connector (${c.de} + inversion)`,end:".",
-      parts:[...mainA,COMMA,{de:c.de,en:c.en,role:"Conn",note:`Connecting adverb: <b>${c.de}</b> occupies Position 1 of its clause, so the verb comes next and the subject third.`},
-        pFin(b,"Position 2 — directly after the connecting adverb."),pSubj(b.s,"Position 3, because the adverb took Position 1."),...mid(b),...pPre(b.v)],
-      en:`${cap(A)}, ${c.en} ${B}.`};
-  }
-  const c=pick(SUBC),fin=b.v.sep+b.v.f[b.s.i];
-  const subB=[{de:c.de,en:c.en,role:"Conn",note:`Subordinating conjunction: <b>${c.de}</b> opens a Nebensatz and sends the conjugated verb to the very end of it.`},
-    pSubj(b.s),...mid(b),{de:fin,en:ven(b),role:"SubVerb",verb:b.v,si:b.s.i,note:`Verb-final: '${c.de}' pushed the conjugated verb to the end.`+(b.v.sep?` The prefix re-attaches here: ${b.v.sep} + ${b.v.f[b.s.i]} = <b>${fin}</b>.`:"")+" "+vInfo(b.v)}];
-  if(type==="sub")
-    return {name:`🔗 Nebensatz (${c.de} … verb at the end)`,end:".",parts:[...mainA,COMMA,...subB],en:`${cap(A)}, ${c.en} ${B}.`};
-  return {name:"🔗 Nebensatz first (verb, verb)",end:".",
-    parts:[...subB,COMMA,pFin(a,"The whole Nebensatz counts as Position 1, so the main verb follows straight after the comma: verb – comma – verb."),pSubj(a.s,"Position 3, after the main verb."),...mid(a),...pPre(a.v)],
-    en:`${cap(c.en)} ${B}, ${A}.`};
-}
-function genObjects(ctx){
-  const s=pick(SUBJ),v=pick(DVERBS),p=pick(PERSONS),t=pick(THINGS),form=pick(["pres","pres","modal","perf"]);
-  const te=teFor(ctx,form==="perf"?"p":"f"),o={s,v};
-  const dat={de:`${DEF[p.g].D} ${p.de}`,en:`the ${enOf(p)}`,role:"Dat",n:`${ART[p.g]} ${p.de}`,k:"D",
-    note:`Indirect object — the receiver (Wem?) → Dative: ${ART[p.g]} ${p.de} → <b>${DEF[p.g].D} ${p.de}</b>. A Dative noun normally comes before an Accusative noun.`};
-  const akk={de:`${IND[t.g].A} ${t.de}`,en:aAn(enOf(t)),role:"Akk",n:`${ART[t.g]} ${t.de}`,k:"A",
-    note:`Direct object — the thing handed over (Was?) → Accusative: ${IND[t.g].N} ${t.de} → <b>${IND[t.g].A} ${t.de}</b>. New, indefinite information likes to come late in the sentence.`};
-  const tp=ph(te,"TE"),enTail=`the ${enOf(p)} ${aAn(enOf(t))} ${te.en}.`;
-  if(form==="perf")
-    return {name:"🎁 Objects in the Perfekt (Dative → Accusative)",end:".",
-      parts:[pSubj(s),{de:HABEN.f[s.i],en:"(past-tense helper)",role:"Aux",verb:HABEN,si:s.i,note:"Perfekt helper <b>haben</b> in Position 2. Verbs with a direct object always take haben."},dat,tp,akk,
-        {de:v.pp,en:v.enp,role:"PP",verb:v,note:`Partizip II closes the bracket. ${vInfo(v)}`}],en:`${s.en} ${v.enp} ${enTail}`};
-  if(form==="modal"){
-    const m=pick(MODALS),men=m.en[s.s3?1:0];
-    return {name:"🎁 Objects with a modal (Dative → Accusative)",end:".",
-      parts:[pSubj(s),{de:m.f[s.i],en:men,role:"Modal",verb:m,si:s.i,note:`Modal verb ${m.note} Position 2; the main verb waits at the end.`},dat,tp,akk,
-        {de:v.inf,en:v.en,role:"Inf",verb:v,note:`Infinitive closes the bracket. ${vInfo(v)}`}],en:`${s.en} ${men} ${v.en} ${enTail}`};
-  }
-  return {name:"🎁 Objects (Dative before Accusative)",end:".",
-    parts:[pSubj(s),pFin(o,"Position 2. This verb takes two objects: someone (Dative) and something (Accusative)."),dat,tp,akk],en:`${s.en} ${ven(o)} ${enTail}`};
-}
-function generate(ctx,st){
-  if(st==="mixed") st=pick(["main","main","bracket","bracket","question","clause","clause","objects"]);
-  const g=st==="main"?(Math.random()<.5?genStandard(ctx):genInverted(ctx)):st==="bracket"?genBracket(ctx):st==="question"?genQuestion(ctx):st==="clause"?genClause(ctx):genObjects(ctx);
-  g.parts=g.parts.map((p,i)=>i===0?{...p,de:cap(p.de)}:p);
-  g.en=cap(clean(g.en));
-  g.de=clean(g.parts.map(p=>p.de).join(" ")+g.end);
-  return g;
+function setMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.mode === mode);
+    });
+    runGenerator();
 }
 
-/* ================= CASE DRILL GENERATOR ================= */
-const FR=[
-{de:"Das ist ___ {N}.",en:"that is {a} {n}.",k:"N",art:"both",why:"After <b>sein</b> the noun stays in the Nominative — nothing is being acted on."},
-{de:"Hier ist ___ {N}.",en:"here is {a} {n}.",k:"N",art:"both",why:"The noun is the subject of the sentence → Nominative."},
-{de:"Wo ist ___ {N}?",en:"where is {a} {n}?",k:"N",art:"def",why:"The noun is the subject of the sentence → Nominative."},
-{de:"Ich suche ___ {N}.",en:"I'm looking for {a} {n}.",k:"A",art:"both",why:"<b>suchen</b> acts directly on the noun (direct object) → Accusative."},
-{de:"Siehst du ___ {N}?",en:"do you see {a} {n}?",k:"A",art:"both",why:"<b>sehen</b> acts directly on the noun (direct object) → Accusative."},
-{de:"Wir brauchen ___ {N}.",en:"we need {a} {n}.",k:"A",art:"both",why:"<b>brauchen</b> takes a direct object → Accusative."},
-{de:"Ich habe ___ {N}.",en:"I have {a} {n}.",k:"A",art:"ind",why:"<b>haben</b> takes a direct object → Accusative."},
-{de:"Das ist für ___ {N}.",en:"that is for {a} {n}.",k:"A",art:"both",why:"<b>für</b> always takes the Accusative."},
-{de:"Ohne ___ {N} geht es nicht.",en:"it doesn't work without {a} {n}.",k:"A",art:"both",why:"<b>ohne</b> always takes the Accusative."},
-{de:"Wir sprechen über ___ {N}.",en:"we are talking about {a} {n}.",k:"A",art:"both",why:"<b>sprechen über</b> (a topic, not a location) → Accusative."},
-{de:"Ich denke an ___ {N}.",en:"I'm thinking of {a} {n}.",k:"A",art:"both",why:"<b>denken an</b> is a fixed pair that takes the Accusative."},
-{de:"Er wartet auf ___ {N}.",en:"he is waiting for {a} {n}.",k:"A",art:"both",why:"<b>warten auf</b> is a fixed pair that takes the Accusative."},
-{de:"Was machst du mit ___ {N}?",en:"what are you doing with {a} {n}?",k:"D",art:"both",why:"<b>mit</b> always takes the Dative."},
-{de:"Ich träume von ___ {N}.",en:"I dream of {a} {n}.",k:"D",art:"both",why:"<b>von</b> always takes the Dative."},
-{de:"Er fragt nach ___ {N}.",en:"he asks about {a} {n}.",k:"D",art:"both",why:"<b>nach</b> always takes the Dative."},
-{de:"Ich habe Angst vor ___ {N}.",en:"I'm afraid of {a} {n}.",k:"D",art:"both",why:"<b>Angst haben vor</b> is a fixed pair that takes the Dative."},
-{de:"Seit ___ {N} ist alles anders.",en:"since {a} {n}, everything is different.",k:"D",art:"def",why:"<b>seit</b> always takes the Dative."},
-{de:"Ich helfe ___ {N}.",en:"I'm helping {a} {n}.",k:"D",art:"both",pool:"P",why:"<b>helfen</b> is a Dative verb: the person you help stands in the Dative."},
-{de:"Wir danken ___ {N}.",en:"we thank {a} {n}.",k:"D",art:"both",pool:"P",why:"<b>danken</b> is a Dative verb."},
-{de:"Er antwortet ___ {N}.",en:"he answers {a} {n}.",k:"D",art:"both",pool:"P",why:"<b>antworten</b> is a Dative verb."},
-{de:"Das Buch gehört ___ {N}.",en:"the book belongs to {a} {n}.",k:"D",art:"both",pool:"P",why:"<b>gehören</b> is a Dative verb."},
-{de:"Wegen ___ {N} bin ich hier.",en:"I'm here because of {a} {n}.",k:"G",art:"def",why:"<b>wegen</b> takes the Genitive."},
-{de:"Trotz ___ {N} bleibe ich ruhig.",en:"despite {a} {n}, I stay calm.",k:"G",art:"def",why:"<b>trotz</b> takes the Genitive."},
-{de:"Das ist das Foto ___ {N}.",en:"that is the photo of {a} {n}.",k:"G",art:"both",why:"'of' / belonging → Genitive."},
-{de:"Ich gehe ___ {N}.",en:"I'm going into the {n}.",k:"A",wp:"in",pool:"I"},
-{de:"Komm mit ___ {N}!",en:"come along into the {n}!",k:"A",wp:"in",pool:"I"},
-{de:"Ich bin gerade ___ {N}.",en:"I'm in the {n} right now.",k:"D",wp:"in",pool:"I"},
-{de:"Wir warten ___ {N}.",en:"we are waiting in the {n}.",k:"D",wp:"in",pool:"I"},
-{de:"Ich lege das Buch ___ {N}.",en:"I'm putting the book on the {n}.",k:"A",wp:"auf",pool:"S"},
-{de:"Das Buch liegt ___ {N}.",en:"the book is lying on the {n}.",k:"D",wp:"auf",pool:"S"}
-];
-const WP={in:{A:{m:"in den",f:"in die",n:"ins"},D:{m:"im",f:"in der",n:"im"}},auf:{A:{m:"auf den",f:"auf die",n:"auf das"},D:{m:"auf dem",f:"auf der",n:"auf dem"}}};
-const WPO={in:["in den","in die","ins","im","in der"],auf:["auf den","auf die","auf das","auf dem","auf der"]};
-const DEFO=["der","die","das","den","dem","des"],INDO=["ein","eine","einen","einem","einer","eines"];
-function kGen(focus){
-  const f=pick(FR.filter(f=>focus==="mix"||(focus==="W"?!!f.wp:!f.wp&&(focus==="NA"?(f.k==="N"||f.k==="A"):f.k===focus))));
-  const n=pick(NOUNS.filter(n=>n.pl!=="-"&&(!f.pool||n.tags.includes(f.pool))&&(f.k!=="G"||n.g==="f"||GEN[n.de])));
-  const def=f.wp||f.art==="def"?true:f.art==="ind"?false:Math.random()<.65;
-  const form=f.k==="G"&&n.g!=="f"?GEN[n.de]:n.de;
-  const ans=f.wp?WP[f.wp][f.k][n.g]:(def?DEF:IND)[n.g][f.k];
-  const opts=f.wp?WPO[f.wp]:def?DEFO:INDO;
-  const en=cap(f.en.replace("{a} {n}",def?"the "+enOf(n):aAn(enOf(n))).replace("{n}",enOf(n)));
-  const why=f.wp?(f.k==="A"?`Movement toward a place (<b>Wohin?</b>) → two-way preposition <b>${f.wp}</b> + Accusative.`:`A location, no change of place (<b>Wo?</b>) → two-way preposition <b>${f.wp}</b> + Dative.`):f.why;
-  return {f,n,def,form,ans,opts,en,why,full:f.de.replace("___",ans).replace("{N}",form)};
+function toggleTags() {
+    const show = document.getElementById("showTagsToggle").checked;
+    document.getElementById("output").classList.toggle("hide-tags", !show);
 }
 
-/* ================= UI (browser only) ================= */
-if(typeof document!=="undefined"){
-let set=Object.assign({tags:true,auto:false,dark:null},store.get("tk_set",{}));
-let streak=+store.get("tekamolo_streak",0)||0;
-let saved=store.get("tekamolo_saved",[]); if(!Array.isArray(saved)) saved=[];
-let boxes=store.get("tk_boxes",{});
-let seen=store.get("tk_seen",{d:"",n:0});
-const S={tab:"S",mode:"instant",cur:null,revealed:true,bank:[],user:[],checked:false,sel:""};
-const G={mode:"absorb",cur:null,answered:false,timer:null};
-const K={cur:null,answered:false};
-const today=()=>new Date().toLocaleDateString("sv");
-
-/* ---- shared ---- */
-function updateStats(){
-  $("streakDisplay").textContent="🔥 "+streak;
-  $("seenDisplay").textContent="👁 "+(seen.d===today()?seen.n:0);
-  $("savedCount").textContent="⭐ "+saved.length;
-}
-function bump(ok){streak=ok?streak+1:0;store.set("tekamolo_streak",streak);updateStats()}
-function sawOne(){if(seen.d!==today())seen={d:today(),n:0};seen.n++;store.set("tk_seen",seen);updateStats()}
-function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),2200)}
-function speak(text,rate=.95){
-  if(!("speechSynthesis" in window)){toast("Speech is not supported on this device.");return}
-  speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(text);u.lang="de-DE";u.rate=rate;
-  const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith("de"));if(v)u.voice=v;
-  speechSynthesis.speak(u);
-}
-function applyTheme(){
-  const dark=set.dark==null?(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches):set.dark;
-  document.documentElement.dataset.theme=dark?"dark":"light";
-}
-window.toggleTheme=()=>{set.dark=document.documentElement.dataset.theme!=="dark";store.set("tk_set",set);applyTheme()};
-window.setOpt=(k,v)=>{set[k]=v;store.set("tk_set",set);$("output").classList.toggle("hide-tags",!set.tags)};
-window.setTab=t=>{
-  S.tab=t;clearTimeout(G.timer);
-  document.querySelectorAll("#mainTabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));
-  ["S","G","K"].forEach(x=>$("tab"+x).hidden=x!==t);
-  $("structureBadge").textContent=t==="S"&&S.cur?S.cur.name:"";
-  if(t==="G"&&!G.cur)gNext();
-  if(t==="K"&&!K.cur)kNext();
-};
-
-/* ---- sentences ---- */
-const TAG={Subj:"Subj",Verb:"Verb",Modal:"Modal",Aux:"Aux",Inf:"Infinitive",PP:"Partizip II",Prefix:"Prefix",SubVerb:"Verb ⇢ end",TE:"TE",KA:"KA",MO:"MO",LO:"LO",Conn:"Conn",W:"W-word",Dat:"Dativ",Akk:"Akk"};
-const ROLE={Subj:"Subject (Nominative — who?)",Verb:"Conjugated verb",Modal:"Modal verb — opens the verb bracket",Aux:"Helper verb — opens the verb bracket",Inf:"Infinitive — closes the verb bracket",PP:"Partizip II — closes the verb bracket",Prefix:"Separable prefix — closes the verb bracket",SubVerb:"Conjugated verb, sent to the end",TE:"Temporal (TE — Wann? when?)",KA:"Kausal (KA — Warum? why?)",MO:"Modal (MO — Wie? how?)",LO:"Lokal (LO — Wo? / Wohin? where?)",Conn:"Connector",W:"Question word",Dat:"Dative object (Wem? to whom?)",Akk:"Accusative object (Was? what?)",Comma:"Punctuation (clause boundary)"};
-const gOf=p=>p.pl?"p":({der:"m",die:"f",das:"n"})[p.n.split(" ")[0]];
-function tileEl(p,neutral){
-  const d=document.createElement("button");d.type="button";d.className="word"+(neutral?" neutral":"");d.dataset.role=p.role;
-  const t=document.createElement("span");t.textContent=p.de;d.appendChild(t);
-  if(!neutral){
-    if(p.n){const dot=document.createElement("i");dot.className="gdot g-"+gOf(p);dot.title=p.n;d.appendChild(dot)}
-    if(p.role!=="Comma"){const tag=document.createElement("span");tag.className="role-tag";tag.textContent=TAG[p.role]||p.role;d.appendChild(tag)}
-  }
-  return d;
-}
-function renderSolution(){
-  const out=$("output");out.innerHTML="";S.revealed=true;
-  S.cur.parts.forEach(p=>{const el=tileEl(p,false);el.onclick=()=>{out.querySelectorAll(".sel").forEach(x=>x.classList.remove("sel"));el.classList.add("sel");inspect(p)};out.appendChild(el)});
-  const dot=document.createElement("span");dot.className="period-mark";dot.textContent=S.cur.end;out.appendChild(dot);
-}
-function conjHTML(v,si){
-  if(!v||!v.f)return"";
-  const lab=["ich","du","er / sie / es","wir","ihr","sie"];
-  let h='<div class="conj">'+lab.map((l,i)=>`<div class="${i===si?"on":""}"><span>${l}</span>${v.f[i]}${v.sep?" … "+v.sep:""}</div>`).join("")+"</div>";
-  h+=`<div class="mini">Infinitive: <b>${v.inf}</b>`+(v.pp?` · Perfekt: <b>${v.aux==="s"?"ist":"hat"} ${v.pp}</b>`:"")+"</div>";
-  return h;
-}
-function inspect(p){
-  S.sel=p.de;$("speakTileBtn").hidden=p.role==="Comma";
-  let chips=`<span class="chip">${ROLE[p.role]||p.role}</span>`;
-  if(p.k)chips+=`<span class="chip">${CASE[p.k]}</span>`;
-  if(p.n){const g=gOf(p);chips+=`<span class="chip g g-${g}">${p.n} · ${g==="p"?"plural":GNAME[g]}</span>`}
-  $("details").innerHTML=`<div style="font-size:1.25rem;font-weight:700;margin-bottom:6px" lang="de">${p.de}</div>${chips}
-    <div style="margin:4px 0 8px"><strong>Meaning:</strong> <em>${p.en}</em></div>${conjHTML(p.verb,p.si)}<div class="note">${p.note}</div>`;
-}
-const DNA_IDLE="Tap any German block above to see what it is, what job it does in the sentence, and why it sits where it sits.";
-window.setMode=m=>{S.mode=m;document.querySelectorAll("#modeTabs button").forEach(b=>b.classList.toggle("active",b.dataset.mode===m));nextSentence()};
-window.nextSentence=()=>{
-  S.cur=generate($("contextSelect").value,$("structureSelect").value);sawOne();
-  const fb=$("feedback");fb.hidden=true;fb.className="feedback";
-  ["flashcardActions","puzzleActions","wordBank","bankLabel","zoneLabel","speakTileBtn"].forEach(id=>$(id).hidden=true);
-  $("details").textContent=DNA_IDLE;S.sel="";
-  $("structureBadge").textContent=S.cur.name;$("englishText").textContent=S.cur.en;
-  if(S.mode==="instant"){renderSolution();if(set.auto)speak(S.cur.de)}
-  else if(S.mode==="flashcard"){S.revealed=false;$("output").innerHTML='<span class="ghost">Say it in German in your head, then reveal…</span>';$("flashcardActions").hidden=false}
-  else initPuzzle();
-};
-window.revealFlashcard=()=>{$("flashcardActions").hidden=true;renderSolution();if(set.auto)speak(S.cur.de)};
-function initPuzzle(){
-  S.revealed=false;S.user=[];S.bank=S.cur.parts.slice();
-  for(let i=S.bank.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[S.bank[i],S.bank[j]]=[S.bank[j],S.bank[i]]}
-  ["zoneLabel","bankLabel","wordBank","puzzleActions"].forEach(id=>$(id).hidden=false);renderPuzzle();
-}
-function renderPuzzle(){
-  const out=$("output"),bank=$("wordBank");out.innerHTML="";bank.innerHTML="";
-  if(!S.user.length)out.innerHTML='<span class="ghost">Tap tiles below to build the German sentence…</span>';
-  S.user.forEach((p,i)=>{const el=tileEl(p,true);
-    if(S.checked)el.classList.add(p.de===S.cur.parts[i].de?"good":"bad");
-    el.onclick=()=>{S.user.splice(i,1);S.bank.push(p);S.checked=false;$("feedback").hidden=true;renderPuzzle()};out.appendChild(el)});
-  S.bank.forEach((p,i)=>{const el=tileEl(p,true);el.onclick=()=>{S.bank.splice(i,1);S.user.push(p);S.checked=false;$("feedback").hidden=true;renderPuzzle()};bank.appendChild(el)});
-}
-window.checkPuzzle=()=>{
-  const fb=$("feedback");fb.hidden=false;
-  if(S.user.length<S.cur.parts.length){fb.className="feedback err";fb.textContent="⚠️ Place all tiles from the word bank first.";return}
-  if(S.user.every((p,i)=>p.de===S.cur.parts[i].de)){
-    bump(true);fb.className="feedback ok";fb.textContent="🎉 Perfekt! Tap any tile to see its Grammar DNA.";
-    ["wordBank","bankLabel","zoneLabel","puzzleActions"].forEach(id=>$(id).hidden=true);renderSolution();speak(S.cur.de);
-  }else{
-    bump(false);S.checked=true;renderPuzzle();fb.className="feedback err";
-    fb.textContent="❌ Not quite — green tiles are already in the right place. Think: verb in Position 2, then TE → KA → MO → LO, and whatever closes the bracket goes last.";
-  }
-};
-window.giveHint=()=>{
-  let i=0;while(i<S.user.length&&S.user[i].de===S.cur.parts[i].de)i++;
-  if(i>=S.cur.parts.length)return;
-  while(S.user.length>i)S.bank.push(S.user.pop());
-  const j=S.bank.findIndex(p=>p.de===S.cur.parts[i].de);if(j>-1)S.user.push(S.bank.splice(j,1)[0]);
-  S.checked=false;renderPuzzle();
-};
-window.resetPuzzle=()=>{while(S.user.length)S.bank.push(S.user.pop());S.checked=false;$("feedback").hidden=true;renderPuzzle()};
-window.speakSentence=r=>speak(S.cur.de,r);
-window.speakSelected=()=>{if(S.sel)speak(S.sel,.9)};
-window.copySentence=()=>{if(navigator.clipboard)navigator.clipboard.writeText(S.cur.de).catch(()=>{});toast("Copied: "+S.cur.de)};
-function addSaved(de,en){
-  if(saved.some(s=>s.de===de)){toast("Already saved!");return}
-  saved.unshift({de,en});store.set("tekamolo_saved",saved);renderSaved();toast("⭐ Saved!");
-}
-window.saveSentence=()=>addSaved(S.cur.de,S.cur.en);
-window.clearSaved=()=>{saved=[];store.set("tekamolo_saved",saved);renderSaved()};
-function renderSaved(){
-  updateStats();const list=$("savedList");list.innerHTML="";
-  if(!saved.length){list.textContent='No saved sentences yet. Tap "⭐ Save" on any sentence you want to keep.';return}
-  saved.forEach((it,i)=>{
-    const row=document.createElement("div");row.className="saved-item";
-    const txt=document.createElement("div"),a=document.createElement("div"),b=document.createElement("div");
-    a.style.cssText="font-weight:600;color:var(--text)";a.lang="de";a.textContent=it.de;b.style.fontSize=".82rem";b.textContent=it.en;txt.append(a,b);
-    const btns=document.createElement("div");btns.style.cssText="display:flex;gap:6px;flex-shrink:0";
-    const sp=document.createElement("button");sp.className="mini-icon-btn";sp.textContent="🔊";sp.onclick=()=>speak(it.de,.9);
-    const del=document.createElement("button");del.className="mini-icon-btn";del.textContent="🗑️";del.onclick=()=>{saved.splice(i,1);store.set("tekamolo_saved",saved);renderSaved()};
-    btns.append(sp,del);row.append(txt,btns);list.appendChild(row);
-  });
-}
-
-/* ---- gender ---- */
-const CATS={all:"🌐 All nouns",rule:"📚 Pattern nouns only (endings you can trust)",h:"🏠 Home & clothing",w:"🏢 Work & study",t:"✈️ Travel & city",s:"☕ Social & leisure",p:"👪 People",f:"🍞 Food & drink",n:"🌳 Nature & time",a:"💭 Abstract ideas",b:"🖐 Body"};
-$("gCat").innerHTML=Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("");
-const gPool=()=>{const c=$("gCat").value;return NOUNS.filter(n=>c==="all"||(c==="rule"?n.rule&&n.rule[0]!=="!":n.tags[0]===c))};
-function hintHTML(n){
-  if(!n.rule)return"";
-  if(n.rule[0]==="!"){const r=RULES[n.rule.slice(1)];return `<div class="hint">⚠️ Odd one out: <b>${r.label}</b> words are usually <b>${ART[r.g]}</b> — this one is <b>${ART[n.g]}</b>.</div>`}
-  const r=RULES[n.rule];return `<div class="hint">💡 <b>${r.label}</b> → <b>${ART[r.g]}</b>. ${r.tip}</div>`;
-}
-function nounCard(n){
-  return `<div class="noun-card g-${n.g}"><div class="noun-big" lang="de"><span class="art">${ART[n.g]}</span> ${n.de}</div><div class="noun-en">${n.en}</div>
-    <div class="chain" lang="de">${n.pl!=="-"?`<span class="chip">Plural: <b>die ${n.pl}</b></span><span class="chip">a: <b>${IND[n.g].N} ${n.de}</b></span>`:""}
-    <span class="chip">Akk: <b>${DEF[n.g].A} ${n.de}</b></span><span class="chip">Dat: <b>${DEF[n.g].D} ${n.de}</b></span></div>${hintHTML(n)}</div>`;
-}
-function gProgress(){
-  const pool=gPool(),m=pool.filter(n=>(boxes[n.de]||0)>=3).length;
-  $("gBar").style.width=(pool.length?100*m/pool.length:0)+"%";
-  $("gProgText").textContent=`${m} of ${pool.length} words feel solid (3 correct in a row each). Misses come back sooner.`;
-}
-function gPick(){
-  const pool=gPool();
-  if(G.mode!=="tap"){let n;do{n=pick(pool)}while(pool.length>1&&n===G.cur);return n}
-  const w=[9,6,4,2,1,.5];let tot=0;
-  const ws=pool.map(n=>{const x=n===G.cur&&pool.length>1?0:w[Math.min(boxes[n.de]||0,5)];tot+=x;return x});
-  let r=Math.random()*tot;for(let i=0;i<pool.length;i++){r-=ws[i];if(r<=0)return pool[i]}
-  return pool[0];
-}
-window.setGMode=m=>{G.mode=m;document.querySelectorAll("#gTabs button").forEach(b=>b.classList.toggle("active",b.dataset.g===m));
-  const pat=m==="patterns";["gControls","gActions","gNextBtn","gKeys"].forEach(id=>$(id).hidden=pat);$("gButtons").hidden=true;$("gProgressWrap").hidden=m!=="tap";
-  if(pat)renderPatterns();else gNext()};
-window.gNext=()=>{
-  if(G.mode==="patterns")return;clearTimeout(G.timer);
-  G.cur=gPick();G.answered=false;sawOne();
-  if(G.mode==="absorb"){$("gStage").innerHTML=nounCard(G.cur);$("gButtons").hidden=true;if(set.auto)gSpeak()}
-  else{$("gStage").innerHTML=`<div class="noun-card"><div class="noun-big" lang="de"><span class="art">___</span> ${G.cur.de}</div><div class="noun-en">${G.cur.en}</div></div>`;$("gButtons").hidden=false;gProgress()}
-};
-window.gAnswer=g=>{
-  if(G.mode!=="tap"||G.answered||!G.cur)return;G.answered=true;
-  const n=G.cur,ok=g===n.g;boxes[n.de]=ok?Math.min((boxes[n.de]||0)+1,5):0;store.set("tk_boxes",boxes);bump(ok);
-  $("gStage").innerHTML=nounCard(n)+`<div class="feedback ${ok?"ok":"err"}">${ok?"✅ Richtig!":`❌ It's <b>${ART[n.g]} ${n.de}</b> — say it out loud once, article and noun as one sound.`}</div>`;
-  $("gButtons").hidden=true;gProgress();gSpeak();
-  if(ok)G.timer=setTimeout(()=>{if(S.tab==="G"&&G.mode==="tap")gNext()},1300);
-};
-window.gSpeak=()=>{if(G.cur)speak(`${ART[G.cur.g]} ${G.cur.de}`,.9)};
-function renderPatterns(){
-  let h='<div class="mini" style="margin-top:4px">You rarely need to memorise a gender one word at a time. These endings and groups cover a large share of everyday nouns — the "Pattern nouns only" filter in Absorb and Quick Tap drills exactly these.</div><div class="pat-grid">';
-  for(const g of["f","n","m"]){
-    h+=`<div class="pat-col g-${g}"><h4>${ART[g]} · ${GNAME[g]}</h4>`;
-    for(const[k,r]of Object.entries(RULES))if(r.g===g){
-      const ex=NOUNS.filter(n=>n.rule===k).slice(0,4).map(n=>`${ART[n.g]} ${n.de}`).join(", ");
-      h+=`<div class="pat"><b class="k">${r.label}</b> — ${r.tip}${ex?`<div class="ex" lang="de">${ex}</div>`:""}</div>`;
+function getRandom(list, context, excludeDe = null) {
+    let matches = list;
+    if (context !== "all" && list[0] && list[0].tags) {
+        matches = list.filter(item => item.tags.includes(context) || item.tags.includes("all"));
     }
-    h+="</div>";
-  }
-  $("gStage").innerHTML=h+"</div>";
+    if (excludeDe) {
+        const filtered = matches.filter(item => (item.de || item.inf) !== excludeDe);
+        if (filtered.length > 0) matches = filtered;
+    }
+    if (matches.length === 0) matches = list;
+    return matches[Math.floor(Math.random() * matches.length)];
 }
 
-/* ---- cases ---- */
-window.kNext=()=>{
-  K.cur=kGen($("kFocus").value);K.answered=false;sawOne();const c=K.cur;
-  $("kEnglish").textContent=c.en;
-  $("kSentence").innerHTML=c.f.de.replace("___",'<span class="gap" id="kGap">&nbsp;</span>').replace("{N}",c.form);
-  const box=$("kOptions");box.innerHTML="";
-  c.opts.forEach(o=>{const b=document.createElement("button");b.className="kopt";b.textContent=o;b.onclick=()=>kAnswer(o,b);box.appendChild(b)});
-  $("kFeedback").hidden=true;
-};
-function kAnswer(o,btn){
-  if(K.answered)return;K.answered=true;const c=K.cur,ok=o===c.ans;bump(ok);
-  document.querySelectorAll("#kOptions .kopt").forEach(b=>{if(b.textContent===c.ans)b.classList.add("right")});
-  if(!ok&&btn)btn.classList.add("wrong");
-  const gap=$("kGap");gap.textContent=c.ans;gap.className="gap g-"+c.n.g;
-  const fb=$("kFeedback");fb.hidden=false;fb.className="feedback "+(ok?"ok":"err");
-  fb.innerHTML=`${ok?"✅":"❌"} ${c.why}<br><span class="g-${c.n.g}" style="color:var(--g);font-weight:700">${ART[c.n.g]} ${c.n.de}</span> (${GNAME[c.n.g]}) + ${CASE[c.f.k]} → <b>${c.ans} ${c.form}</b>`;
-  speak(c.full,.9);
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
-window.kSpeak=()=>{if(K.cur)speak(K.answered?K.cur.full:K.cur.f.de.replace("___","…").replace("{N}",K.cur.form),.9)};
 
-/* ---- keyboard ---- */
-document.addEventListener("keydown",e=>{
-  if(e.ctrlKey||e.metaKey||e.altKey||/^(SELECT|INPUT|TEXTAREA)$/.test(e.target.tagName))return;
-  const k=e.key.toLowerCase(),next=k==="n"||k==="arrowright";
-  if(S.tab==="S"){
-    if(next)nextSentence();else if(k==="l")speakSentence(.95);else if(k==="r"&&S.mode==="flashcard"&&!S.revealed)revealFlashcard();
-  }else if(S.tab==="G"){
-    if(next)gNext();else if("123".includes(k)&&k)gAnswer("mfn"["123".indexOf(k)]);else if(k==="l")gSpeak();
-  }else{
-    if(next)kNext();else if(k==="l")kSpeak();
-    else if(k>="1"&&k<="6"){const b=document.querySelectorAll("#kOptions .kopt")[+k-1];if(b)b.click()}
-  }
-});
+function normalizeSentenceCase(parts) {
+    return parts.map((p, idx) => {
+        let text = p.de;
+        if (idx === 0) {
+            text = capitalize(text);
+        } else if (p.isPronoun) {
+            text = text.toLowerCase();
+        }
+        return { ...p, de: text };
+    });
+}
 
-/* ---- init ---- */
-applyTheme();
-$("showTagsToggle").checked=set.tags;$("autoToggle").checked=set.auto;$("output").classList.toggle("hide-tags",!set.tags);
-if("speechSynthesis" in window)speechSynthesis.getVoices();
-renderSaved();nextSentence();
+function getFullGermanString(parts = currentParts) {
+    if (!parts || parts.length === 0) return "";
+    return parts.map(p => p.de).join(" ").replace(/\s+,/g, ",") + ".";
+}
+
+function runGenerator() {
+    const context = document.getElementById("contextSelect").value;
+    let structure = document.getElementById("structureSelect").value;
+    if (structure === "mixed") {
+        const opts = ["standard", "inverted", "compound"];
+        structure = opts[Math.floor(Math.random() * opts.length)];
+    }
+
+    document.getElementById("feedback").className = "feedback-banner";
+    document.getElementById("feedback").innerText = "";
+    document.getElementById("flashcardActions").style.display = "none";
+    document.getElementById("puzzleActions").style.display = "none";
+    document.getElementById("wordBank").style.display = "none";
+    document.getElementById("bankLabel").style.display = "none";
+    document.getElementById("zoneLabel").style.display = "none";
+    document.getElementById("speakTileBtn").style.display = "none";
+    document.getElementById("details").innerHTML = "Tap any revealed German block above to inspect its role, case, and word-order rule.";
+
+    const s1 = getRandom(db.subjects, context);
+    const v1 = getRandom(db.verbs, context);
+    const te = getRandom(db.TE, context);
+    const ka = getRandom(db.KA, context);
+    const mo = getRandom(db.MO, context);
+    const lo = getRandom(db.LO, context);
+
+    const v1Eng = (s1.id === "er" || s1.id === "sie") ? v1.en3 : v1.en;
+    let rawParts = [];
+
+    if (structure === "compound") {
+        currentStructureName = "🔗 Compound (Nebensatz)";
+        const conn = getRandom(db.connectors, context);
+        const s2 = getRandom(db.subjects, context);
+        const v2 = getRandom(db.verbs, context, v1.inf);
+        const mo2 = getRandom(db.MO, context, mo.de);
+        const lo2 = getRandom(db.LO, context, lo.de);
+        const v2Eng = (s2.id === "er" || s2.id === "sie") ? v2.en3 : v2.en;
+
+        rawParts = [
+            { de: s1.de, en: s1.en, role: "Subj", isPronoun: true, note: s1.note },
+            { de: v1.conj[s1.id], en: v1Eng, role: "Verb", note: `Position 2 conjugated verb (${v1.inf}). ${v1.note}` },
+            { de: te.de, en: te.en, role: "TE", note: te.note },
+            { de: lo.de, en: lo.en, role: "LO", note: lo.note },
+            { de: ",", en: "(clause separator)", role: "Comma", note: "German always separates a main clause and a subordinate clause with a comma." },
+            { de: conn.de, en: conn.en, role: "Conn", note: conn.note },
+            { de: s2.de, en: s2.en, role: "Subj", isPronoun: true, note: s2.note },
+            { de: mo2.de, en: mo2.en, role: "MO", note: mo2.note },
+            { de: lo2.de, en: lo2.en, role: "LO", note: lo2.note },
+            { de: v2.conj[s2.id], en: v2Eng, role: "SubVerb", note: `Verb-Final Rule: '${conn.de}' kicked '${v2.conj[s2.id]}' (${v2.inf}) from Position 2 to the very end!` }
+        ];
+
+        currentEnglish = `${s1.en} ${v1Eng} ${lo.en} ${te.en}, ${conn.en} ${s2.pron} ${v2Eng} ${mo2.en} ${lo2.en}.`;
+
+    } else if (structure === "inverted") {
+        currentStructureName = "🔄 Inverted (TE in Pos 1)";
+        rawParts = [
+            { de: te.de, en: te.en, role: "TE", note: `Fronted to Position 1 for emphasis! Because TE is in Position 1, the verb stays in Position 2 and the subject moves to Position 3. (${te.note})` },
+            { de: v1.conj[s1.id], en: v1Eng, role: "Verb", note: `Stays strictly in Position 2 (V2 Rule). ${v1.note}` },
+            { de: s1.de, en: s1.en, role: "Subj", isPronoun: true, note: `Inverted to Position 3 after the conjugated verb. ${s1.note}` },
+            { de: ka.de, en: ka.en, role: "KA", note: ka.note },
+            { de: mo.de, en: mo.en, role: "MO", note: mo.note },
+            { de: lo.de, en: lo.en, role: "LO", note: lo.note }
+        ];
+
+        currentEnglish = `${capitalize(te.en)}, ${s1.pron} ${v1Eng} ${ka.en} ${mo.en} ${lo.en}.`;
+
+    } else {
+        const useModal = Math.random() > 0.45;
+        if (useModal) {
+            currentStructureName = "📐 Modal Bracket (Satzklammer)";
+            const mod = getRandom(db.modals, context);
+            rawParts = [
+                { de: s1.de, en: s1.en, role: "Subj", isPronoun: true, note: s1.note },
+                { de: mod.conj[s1.id], en: mod.en[s1.id], role: "Modal", note: mod.note },
+                { de: te.de, en: te.en, role: "TE", note: te.note },
+                { de: ka.de, en: ka.en, role: "KA", note: ka.note },
+                { de: mo.de, en: mo.en, role: "MO", note: mo.note },
+                { de: lo.de, en: lo.en, role: "LO", note: lo.note },
+                { de: v1.inf, en: v1.en, role: "End", note: `Infinitive pushed to the end by the modal verb '${mod.conj[s1.id]}'.` }
+            ];
+            currentEnglish = `${s1.en} ${mod.en[s1.id]} ${v1.en} ${te.en} ${ka.en} ${mo.en} ${lo.en}.`;
+        } else {
+            currentStructureName = "📐 Standard (S-V-TEKAMOLO)";
+            rawParts = [
+                { de: s1.de, en: s1.en, role: "Subj", isPronoun: true, note: s1.note },
+                { de: v1.conj[s1.id], en: v1Eng, role: "Verb", note: `Position 2 conjugated verb (${v1.inf}). ${v1.note}` },
+                { de: te.de, en: te.en, role: "TE", note: te.note },
+                { de: ka.de, en: ka.en, role: "KA", note: ka.note },
+                { de: mo.de, en: mo.en, role: "MO", note: mo.note },
+                { de: lo.de, en: lo.en, role: "LO", note: lo.note }
+            ];
+            currentEnglish = `${s1.en} ${v1Eng} ${te.en} ${ka.en} ${mo.en} ${lo.en}.`;
+        }
+    }
+
+    currentParts = normalizeSentenceCase(rawParts);
+    document.getElementById("structureBadge").innerText = currentStructureName;
+    document.getElementById("englishText").innerText = currentEnglish;
+
+    if (currentMode === "instant") {
+        renderSolutionTiles(currentParts);
+    } else if (currentMode === "flashcard") {
+        document.getElementById("output").innerHTML = `<span style="color:#94a3b8; font-style:italic;">Translate in your head, then tap Reveal...</span>`;
+        document.getElementById("flashcardActions").style.display = "flex";
+    } else if (currentMode === "puzzle") {
+        initPuzzleMode();
+    }
+}
+
+function createTileElement(item, isNeutral = false) {
+    const div = document.createElement("div");
+    div.className = "word" + (isNeutral ? " neutral" : "");
+    div.setAttribute("data-role", item.role);
+
+    const textSpan = document.createElement("span");
+    textSpan.innerText = item.de;
+    div.appendChild(textSpan);
+
+    if (!isNeutral && item.role !== "Comma") {
+        const tag = document.createElement("span");
+        tag.className = "role-tag";
+        tag.innerText = item.role;
+        div.appendChild(tag);
+    }
+    return div;
+}
+
+function renderSolutionTiles(parts) {
+    const out = document.getElementById("output");
+    out.innerHTML = "";
+    parts.forEach(item => {
+        const tile = createTileElement(item, false);
+        tile.onclick = () => inspectTile(item);
+        out.appendChild(tile);
+    });
+    const dot = document.createElement("span");
+    dot.className = "period-mark";
+    dot.innerText = ".";
+    out.appendChild(dot);
+}
+
+function revealFlashcard() {
+    document.getElementById("flashcardActions").style.display = "none";
+    renderSolutionTiles(currentParts);
+}
+
+// --- TILE PUZZLE LOGIC ---
+function initPuzzleMode() {
+    puzzleUser = [];
+    puzzleBank = currentParts.map((item, idx) => ({ ...item, uid: idx }));
+    for (let i = puzzleBank.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [puzzleBank[i], puzzleBank[j]] = [puzzleBank[j], puzzleBank[i]];
+    }
+
+    document.getElementById("zoneLabel").style.display = "block";
+    document.getElementById("bankLabel").style.display = "block";
+    document.getElementById("wordBank").style.display = "flex";
+    document.getElementById("puzzleActions").style.display = "flex";
+    renderPuzzle();
+}
+
+function renderPuzzle() {
+    const out = document.getElementById("output");
+    const bank = document.getElementById("wordBank");
+    out.innerHTML = "";
+    bank.innerHTML = "";
+
+    if (puzzleUser.length === 0) {
+        out.innerHTML = `<span style="color:#94a3b8; font-size:0.9rem;">Tap tiles below to build the German sentence...</span>`;
+    } else {
+        puzzleUser.forEach((item, idx) => {
+            const tile = createTileElement(item, true);
+            tile.onclick = () => {
+                puzzleUser.splice(idx, 1);
+                puzzleBank.push(item);
+                document.getElementById("feedback").className = "feedback-banner";
+                renderPuzzle();
+            };
+            out.appendChild(tile);
+        });
+    }
+
+    puzzleBank.forEach((item, idx) => {
+        const tile = createTileElement(item, true);
+        tile.onclick = () => {
+            puzzleBank.splice(idx, 1);
+            puzzleUser.push(item);
+            document.getElementById("feedback").className = "feedback-banner";
+            renderPuzzle();
+        };
+        bank.appendChild(tile);
+    });
+}
+
+function checkPuzzle() {
+    const fb = document.getElementById("feedback");
+    if (puzzleUser.length < currentParts.length) {
+        fb.className = "feedback-banner err";
+        fb.innerText = "⚠️ Place all tiles from the Word Bank first!";
+        return;
+    }
+
+    const isCorrect = puzzleUser.every((item, idx) => item.de === currentParts[idx].de);
+    if (isCorrect) {
+        streak++;
+        localStorage.setItem("tekamolo_streak", streak);
+        document.getElementById("streakDisplay").innerText = `🔥 Streak: ${streak}`;
+        fb.className = "feedback-banner ok";
+        fb.innerText = "🎉 Perfekt! Exact German word order. Tap any tile to inspect its Grammar DNA.";
+        document.getElementById("wordBank").style.display = "none";
+        document.getElementById("bankLabel").style.display = "none";
+        document.getElementById("zoneLabel").style.display = "none";
+        document.getElementById("puzzleActions").style.display = "none";
+        renderSolutionTiles(currentParts);
+        speakFullSentence(0.95);
+    } else {
+        streak = 0;
+        localStorage.setItem("tekamolo_streak", 0);
+        document.getElementById("streakDisplay").innerText = `🔥 Streak: 0`;
+        fb.className = "feedback-banner err";
+        fb.innerText = "❌ Not quite! Remember: Verb in Position 2, TE → KA → MO → LO in the middle, and Nebensatz/Modal verbs at the end.";
+    }
+}
+
+function giveHint() {
+    let mismatchIdx = 0;
+    while (mismatchIdx < puzzleUser.length && puzzleUser[mismatchIdx].de === currentParts[mismatchIdx].de) {
+        mismatchIdx++;
+    }
+    if (mismatchIdx >= currentParts.length) return;
+
+    while (puzzleUser.length > mismatchIdx) {
+        puzzleBank.push(puzzleUser.pop());
+    }
+
+    const neededDe = currentParts[mismatchIdx].de;
+    const bankIdx = puzzleBank.findIndex(item => item.de === neededDe);
+    if (bankIdx !== -1) {
+        const [correctTile] = puzzleBank.splice(bankIdx, 1);
+        puzzleUser.push(correctTile);
+    }
+    renderPuzzle();
+}
+
+function resetPuzzle() {
+    while (puzzleUser.length > 0) {
+        puzzleBank.push(puzzleUser.pop());
+    }
+    document.getElementById("feedback").className = "feedback-banner";
+    renderPuzzle();
+}
+
+// --- GRAMMAR DNA INSPECTOR ---
+function inspectTile(item) {
+    const roleLabels = {
+        Subj: "Subject (Nominative — Who/What?)",
+        Verb: "Conjugated Verb (Position 2 Rule)",
+        Modal: "Modal Verb (Position 2 — Opens Verb Bracket)",
+        End: "Infinitive Verb (Closed Verb Bracket at End)",
+        SubVerb: "Subordinate Verb (Kicked to End by Connector)",
+        TE: "Temporal (TE — Wann? / When?)",
+        KA: "Kausal (KA — Warum? / Why?)",
+        MO: "Modal (MO — Wie? / How?)",
+        LO: "Lokal (LO — Wo/Wohin? / Where?)",
+        Conn: "Subordinating Connector (Nebensatz Trigger)",
+        Comma: "Punctuation (Clause Boundary)"
+    };
+
+    selectedTileText = item.de;
+    document.getElementById("speakTileBtn").style.display = item.role === "Comma" ? "none" : "inline-block";
+
+    document.getElementById("details").innerHTML = `
+        <div style="font-size:1.25rem; font-weight:700; color:var(--text); margin-bottom:4px;">${item.de}</div>
+        <div class="dna-chip">${roleLabels[item.role] || item.role}</div>
+        <div style="margin-bottom:8px;"><strong>Meaning:</strong> <em>${item.en}</em></div>
+        <div style="background:#f8fafc; padding:10px; border-radius:8px; border-left:3px solid var(--c-verb); font-size:0.9rem;">
+            ${item.note}
+        </div>
+    `;
+}
+
+// --- AUDIO, CLIPBOARD & BOOKMARKS ---
+function speakText(text, rate = 0.95) {
+    if (!("speechSynthesis" in window)) {
+        showToast("Speech synthesis not supported on this device.");
+        return;
+    }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "de-DE";
+    utter.rate = rate;
+    window.speechSynthesis.speak(utter);
+}
+
+function speakFullSentence(rate) {
+    speakText(getFullGermanString(), rate);
+}
+
+function speakSelectedTile() {
+    if (selectedTileText) speakText(selectedTileText, 0.9);
+}
+
+function copySentence() {
+    const text = getFullGermanString();
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text);
+    }
+    showToast("Copied: " + text);
+}
+
+function saveCurrentSentence() {
+    const de = getFullGermanString();
+    if (savedSentences.some(s => s.de === de)) {
+        showToast("Already saved!");
+        return;
+    }
+    savedSentences.unshift({ de, en: currentEnglish });
+    localStorage.setItem("tekamolo_saved", JSON.stringify(savedSentences));
+    renderSavedList();
+    showToast("⭐ Saved sentence!");
+}
+
+function deleteSaved(idx) {
+    savedSentences.splice(idx, 1);
+    localStorage.setItem("tekamolo_saved", JSON.stringify(savedSentences));
+    renderSavedList();
+}
+
+function clearSaved() {
+    savedSentences = [];
+    localStorage.setItem("tekamolo_saved", "[]");
+    renderSavedList();
+}
+
+function renderSavedList() {
+    document.getElementById("savedCount").innerText = `⭐ ${savedSentences.length}`;
+    const listEl = document.getElementById("savedList");
+    if (savedSentences.length === 0) {
+        listEl.innerHTML = `No saved sentences yet. Tap "⭐ Save" on any sentence you want to keep.`;
+        return;
+    }
+    listEl.innerHTML = savedSentences.map((item, idx) => `
+        <div class="saved-item">
+            <div>
+                <div style="font-weight:600; color:var(--text);">${item.de}</div>
+                <div style="font-size:0.82rem; color:var(--muted);">${item.en}</div>
+            </div>
+            <div style="display:flex; gap:6px; flex-shrink:0;">
+                <button class="mini-icon-btn" onclick="speakText('${item.de.replace(/'/g, "\\'")}', 0.9)">🔊</button>
+                <button class="mini-icon-btn" onclick="deleteSaved(${idx})">🗑️</button>
+            </div>
+        </div>
+    `).join("");
+}
+
+function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.innerText = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2200);
 }
 </script>
 </body>
